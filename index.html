@@ -71,7 +71,7 @@
     @keyframes splashLoad{from{width:0}to{width:100%}}
     @media (max-width:640px){.splash-card{padding:30px 20px 22px;border-radius:26px}.splash-orb{width:80px;height:80px;font-size:34px}.splash-cross{width:40px;height:40px;font-size:20px}.splash-kicker{letter-spacing:.12em}}
 
-</style>
+    .hero{padding-top:54px}.topbar{position:relative;top:auto}@media(max-width:720px){.hero{padding-top:28px}}\n</style>
 </head>
 <body class="splash-open">
 <div class="splash" id="splash" aria-label="Amara Solution AI intro">
@@ -201,14 +201,14 @@
   ];
   // From the user-provided C.R.P.O.S. 2026 holiday schedule. Unconfirmed religious dates remain flagged.
   const holidaySchedule = [
-    {date:'2026-01-11', ar:'مناسبة وطنية',fr:'Fête nationale', en:'National holiday', names:['الحراسة الأسبوعية'], regular:true},
-    {date:'2026-03-20', ar:'عيد الفطر',fr:'Aïd al-Fitr',en:'Eid al-Fitr', names:['أجدير','أكلمام'], tentative:true},
-    {date:'2026-05-01', ar:'عيد الشغل',fr:'Fête du Travail',en:'Labour Day', names:['أم الربيع','صيدلية المسيرة الخضراء']},
-    {date:'2026-05-27', ar:'عيد الأضحى',fr:'Aïd al-Adha',en:'Eid al-Adha', names:['المسيرة السفلى','بوفولوسن'], tentative:true},
-    {date:'2026-06-17', ar:'فاتح محرم',fr:'1er Moharram',en:'Islamic New Year', names:['العمران','واليلي'], tentative:true},
-    {date:'2026-07-30', ar:'عيد العرش',fr:'Fête du Trône',en:'Throne Day', names:['أفيلال','الوحدة']},
-    {date:'2026-08-25', ar:'المولد النبوي',fr:'Aïd al-Mawlid',en:'Mawlid', names:['الجديدة','القروية'], tentative:true},
-    {date:'2026-11-18', ar:'عيد الاستقلال',fr:'Fête de l’Indépendance',en:'Independence Day', names:['ابن رشد','تزارت اعراضين']}
+    {date:'2026-01-11', ar:'مناسبة وطنية',fr:'Fête nationale', en:'National holiday', names:[], regular:true},
+    {date:'2026-03-20', ar:'عيد الفطر',fr:'Aïd al-Fitr',en:'Eid al-Fitr', names:[], tentative:true},
+    {date:'2026-05-01', ar:'عيد الشغل',fr:'Fête du Travail',en:'Labour Day', names:[]},
+    {date:'2026-05-27', ar:'عيد الأضحى',fr:'Aïd al-Adha',en:'Eid al-Adha', names:[], tentative:true},
+    {date:'2026-06-17', ar:'فاتح محرم',fr:'1er Moharram',en:'Islamic New Year', names:[], tentative:true},
+    {date:'2026-07-30', ar:'عيد العرش',fr:'Fête du Trône',en:'Throne Day', names:[]},
+    {date:'2026-08-25', ar:'المولد النبوي',fr:'Aïd al-Mawlid',en:'Mawlid', names:[], tentative:true},
+    {date:'2026-11-18', ar:'عيد الاستقلال',fr:'Fête de l’Indépendance',en:'Independence Day', names:[]}
   ];
   let nightSchedule = [];
   const hiddenDirectory = [];
@@ -294,15 +294,18 @@ function setLang(next){ lang = next; localStorage.setItem('kp_lang', lang); docu
     els.night.innerHTML = `<div class="panel"><div class="section-title"><div><h2>${t('nightTitle')}</h2><p>${item ? formatDate(item.date) + ' · ' + item.startTime + ' – ' + item.endTime : t('noticeBody')}</p></div><span class="badge">${t('nightBadge')}</span></div><div class="cards">${items}</div></div>`;
   }
   function renderHolidays(){
-    const sorted=[...holidaySchedule].sort((a,b)=>a.date.localeCompare(b.date));
-    const cards=sorted.map(h=>{
-      const label = h[lang] || h.ar;
-      const date = formatDate(h.date);
-      const status = h.tentative ? `<span class="badge warn">${lang==='ar'?'التاريخ قابل للتأكيد':lang==='fr'?'Date à confirmer':'Date subject to confirmation'}</span>` : '';
-      const details = h.regular ? `<p class="small">${t('regularHoliday')}</p>` : `<div class="holiday-pharmacies">${h.names.map(n=>`<span class="holiday-chip">✚ ${escapeHtml(n)}</span>`).join('')}</div>`;
-      return `<article class="card holiday-card"><div class="card-top"><span class="badge">📅 ${escapeHtml(date)}</span>${status}</div><h3>${escapeHtml(label)}</h3>${details}</article>`;
-    }).join('');
-    document.getElementById('holidays').innerHTML=`<div class="panel"><div class="section-title"><div><h2>${t('tabHolidays')}</h2><p>${t('holidayDescription')}</p></div></div><div class="banner"><span>ⓘ</span><div><div>${t('holidayWarning')}</div><div style="margin-top:6px;font-weight:700">${t('holidayNextUpdate')}</div></div></div><div class="cards">${cards}</div></div>`;
+    // Privacy-first view: never publish the full holiday rota or pharmacy names.
+    const today = isoToday();
+    const upcoming = holidaySchedule.filter(h=>h.date>=today).sort((a,b)=>a.date.localeCompare(b.date))[0];
+    const days = upcoming ? Math.round((Date.parse(upcoming.date+'T12:00:00')-Date.parse(today+'T12:00:00'))/86400000) : Infinity;
+    const heading = t('tabHolidays');
+    const noHoliday = lang==='ar' ? 'لا توجد حراسة أعياد اليوم' : lang==='fr' ? 'Pas de garde de jour férié aujourd’hui' : 'No holiday duty today';
+    const nextMsg = lang==='ar' ? 'المناسبة المقبلة' : lang==='fr' ? 'Prochain jour férié' : 'Next holiday';
+    const checking = lang==='ar' ? 'تُعرض تفاصيل الحراسة عند اقتراب المناسبة وبعد التحقق منها. اتصل بالصيدلية قبل التنقل.' : lang==='fr' ? 'Les détails de garde seront publiés à l’approche du jour férié, après vérification. Appelez avant de vous déplacer.' : 'Duty details will appear closer to the holiday after verification. Call before travelling.';
+    const next = upcoming && days<=14 ? `<p class="small" style="margin-top:12px">${nextMsg}: <strong>${escapeHtml(upcoming[lang]||upcoming.ar)}</strong> · ${escapeHtml(formatDate(upcoming.date))}</p>` : '';
+    const current = upcoming && days===0;
+    const status = current ? (lang==='ar'?'حراسة العيد قيد التحقق':lang==='fr'?'Garde du jour férié en cours de vérification':'Holiday duty is being verified') : noHoliday;
+    document.getElementById('holidays').innerHTML=`<div class="panel"><div class="section-title"><div><h2>${heading}</h2><p>${t('holidayDescription')}</p></div></div><div class="empty" style="text-align:center;padding:34px 18px"><div style="font-size:34px;margin-bottom:8px">📅</div><h3 style="margin:4px 0 8px">${status}</h3><p class="small">${checking}</p>${next}</div><p class="footer-note">${t('holidayNextUpdate')}</p></div>`;
   }
   function renderMap(){
     const q = selectedMapPharmacy ? pharmacyQuery(selectedMapPharmacy) : 'Khénifra, Morocco';
