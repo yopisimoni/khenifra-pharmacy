@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0d5948" />
+  <title>Khénifra Pharma | صيدليات الحراسة</title>
+  <style>
+    :root{--bg:#f5f8f6;--card:#ffffff;--ink:#18332d;--muted:#5d746c;--line:#d8e6df;--brand:#0d5948;--brand-2:#117a63;--soft:#eaf5f0;--warn:#f9f2df;--warn-line:#ebd7a0;--danger:#8a3d3d;--shadow:0 10px 30px rgba(5,45,35,.07);--radius:22px}
+    *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family: Cairo, system-ui, sans-serif;-webkit-text-size-adjust:100%}
+    a{color:inherit;text-decoration:none} button,input,select{font:inherit}
+    .app{max-width:1120px;margin:0 auto;padding:16px 16px 48px}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;background:rgba(255,255,255,.86);backdrop-filter: blur(12px);border:1px solid var(--line);border-radius:20px;padding:14px 16px;position:sticky;top:10px;z-index:30;box-shadow:var(--shadow)}
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}.brandmark{width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;display:grid;place-items:center;font-weight:800;font-size:26px;flex:0 0 auto}.brand b{display:block;font-size:18px;line-height:1.15}.brand small{display:block;color:var(--muted);font-size:12px;letter-spacing:.08em}
+    .lang-wrap{display:flex;gap:8px;align-items:center}.lang-wrap select{border:1px solid var(--line);background:#fff;border-radius:14px;padding:10px 12px;min-height:44px}
+    .hero{padding:26px 6px 18px}.eyebrow{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;color:var(--muted);font-size:13px}.dot{width:8px;height:8px;border-radius:50%;background:#2cb67d;box-shadow:0 0 0 5px rgba(44,182,125,.18)}
+    h1{margin:18px 0 10px;font-size:clamp(28px,6vw,48px);line-height:1.05} h1 em{font-style:normal;color:var(--brand)}
+    .lead{max-width:760px;color:var(--muted);font-size:16px;line-height:1.8}.hero-meta{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;color:var(--muted);font-size:14px}
+    .banner{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:18px;background:var(--warn);border:1px solid var(--warn-line);color:#6b5623;margin:10px 0 18px}
+    .tabs{display:flex;gap:10px;overflow:auto;padding-bottom:6px;scrollbar-width:none;margin:18px 0}.tabs::-webkit-scrollbar{display:none}.tabs button{border:1px solid var(--line);background:#fff;color:var(--ink);padding:12px 18px;border-radius:16px;min-height:46px;white-space:nowrap;cursor:pointer}.tabs button.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+    .section{display:none}.section.active{display:block}
+    .segment{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 18px}.segment button{border:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 14px;border-radius:14px;cursor:pointer;min-height:44px}.segment button.active{background:var(--soft);border-color:#a8d2c2;color:var(--brand);font-weight:700}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+    .section-title{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:16px}.section-title h2{margin:0;font-size:32px}.section-title p{margin:0;color:var(--muted)}
+    .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:var(--shadow)}
+    .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.badge{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid var(--line);background:#fff;color:var(--muted)}.badge.warn{background:#fff8e8;border-color:var(--warn-line);color:#80631a}.badge.ok{background:#eef9f4;border-color:#badcc9;color:#206248}
+    .name{font-size:18px;color:var(--muted);margin-top:10px}.pharmacy{font-size:40px;line-height:1;margin:8px 0 10px;font-weight:800;letter-spacing:-.02em}.address{color:var(--muted);line-height:1.8;min-height:52px}.phone{display:inline-flex;align-items:center;gap:8px;color:var(--brand);font-weight:800;margin:12px 0 0}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:12px 14px;border-radius:16px;border:1px solid var(--line);cursor:pointer;font-weight:700;background:#fff;color:var(--ink)}.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}.btn.soft{background:var(--soft);border-color:#cfe2db;color:var(--brand)}
+    details{margin-top:14px;border-top:1px solid var(--line);padding-top:12px} summary{cursor:pointer;color:var(--brand);font-weight:700} .small{font-size:13px;color:var(--muted);line-height:1.8}
+    .feedback{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.feedback .choices{display:flex;gap:8px;flex-wrap:wrap}.pill{border:1px solid var(--line);background:#fff;border-radius:12px;padding:8px 12px;color:var(--ink);cursor:pointer;min-height:40px}
+    .searchbox{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}.searchbox input{flex:1;min-width:220px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px;min-height:50px}
+    .map-shell{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start}.map-card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:16px;box-shadow:var(--shadow)}.map-frame{width:100%;height:440px;border:0;border-radius:18px;background:#eef3f0}.list-stack{display:grid;gap:14px}.mini-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px;display:grid;gap:10px}.mini-title{display:flex;justify-content:space-between;gap:8px;align-items:center}.mini-title b{font-size:20px}.mini-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .modal{position:fixed;inset:0;background:rgba(10,20,17,.42);display:none;place-items:center;padding:18px;z-index:50}.modal.open{display:grid}.dialog{width:min(980px,100%);max-height:min(92dvh, 900px);overflow:auto;background:#fff;border:1px solid var(--line);border-radius:28px;padding:18px;box-shadow:0 24px 80px rgba(0,0,0,.22)} .dialog-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px}.close{width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:#fff;cursor:pointer}.chooser{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0 14px}.chooser .btn{min-height:48px}.route-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:14px;align-items:start}.route-panel{border:1px solid var(--line);border-radius:20px;padding:14px;background:#fbfdfb}.route-panel label{display:block;font-weight:700;margin-bottom:8px}.route-panel input{width:100%;border:1px solid var(--line);border-radius:14px;padding:12px 14px;min-height:46px;margin-bottom:10px}.route-map{height:440px;border:0;border-radius:20px;background:#eef3f0;width:100%}.route-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+    .night-card{background:linear-gradient(145deg,#0f2541,#142f50 60%,#1a3e57);color:#f4f8ff;border-color:#274c70;box-shadow:0 14px 42px rgba(12,36,70,.2)}
+    .night-card .name,.night-card .address,.night-card .small,.night-card .phone{color:#d6e8fc}
+    .night-card .pharmacy{color:#fff}.night-card .badge.ok{color:#e2edff;background:#263f68;border-color:#5273a0}
+    .night-card .badge.warn{color:#ffe9b5;background:#564528;border-color:#866b33}
+    .night-card .btn.primary{background:#edf6ff;color:#183855;border-color:#edf6ff}.night-card .btn.soft{background:#2b5275;color:#fff;border-color:#567a9d}
+    .share-line{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}.share-line .pill{font-weight:700}.legal-content{line-height:1.9;text-align:start}.legal-content h3{color:var(--brand)}.legal-content p{margin:8px 0 14px}.night-card details,.night-card .feedback{border-color:#496582}.night-card summary{color:#edf6ff}.night-card .pill{color:#183855}
+    .night-label{display:inline-flex;gap:9px;align-items:center;color:#d9e7ff;font-weight:800;letter-spacing:.02em;margin-bottom:10px}
+    .footer-note{margin:14px auto;color:var(--muted);max-width:620px;font-size:13px}
+    .feedback-dialog{max-width:600px}.feedback-dialog form{display:grid;gap:10px}.feedback-dialog label{font-weight:700}.feedback-dialog select,.feedback-dialog textarea{width:100%;padding:12px;border-radius:14px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+    footer{padding:26px 6px 8px;color:var(--muted);text-align:center}.foot-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:14px}.empty{padding:18px;border:1px dashed var(--line);border-radius:18px;background:#fff;color:var(--muted)}
+    @media (max-width: 960px){.cards,.map-shell,.route-grid{grid-template-columns:1fr}.map-frame,.route-map{height:360px}}
+    @media (max-width: 720px){.app{padding:12px 12px 40px}.topbar{padding:12px}.brandmark{width:42px;height:42px;border-radius:14px;font-size:22px}.brand b{font-size:16px}.hero{padding:20px 2px 12px}.section-title h2{font-size:26px}.pharmacy{font-size:34px}.actions,.chooser{grid-template-columns:1fr}.feedback{align-items:flex-start;flex-direction:column}.dialog{padding:14px;border-radius:22px}.map-frame,.route-map{height:300px}.mini-actions{display:grid;grid-template-columns:1fr}.btn,.pill,.tabs button,.segment button{min-height:48px}}
+    .holiday-card{border-top:4px solid #cf9a42;min-height:160px}.holiday-card h3{font-size:24px;margin:14px 0}.holiday-pharmacies{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.holiday-chip{display:inline-flex;background:#eaf5f0;color:#0d5948;padding:10px 13px;border-radius:13px;font-weight:700}
+  
+    body.splash-open{overflow:hidden}
+    .splash{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at top, rgba(17,122,99,.18), rgba(245,248,246,.98) 45%, rgba(245,248,246,1) 100%);z-index:120;transition:opacity .55s ease, visibility .55s ease}
+    .splash.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+    .splash::before,.splash::after{content:"";position:absolute;border-radius:999px;filter:blur(4px);opacity:.55;animation:splashFloat 7s ease-in-out infinite}
+    .splash::before{width:240px;height:240px;background:rgba(17,122,99,.12);top:8%;left:10%}
+    .splash::after{width:180px;height:180px;background:rgba(13,89,72,.12);bottom:10%;right:12%;animation-delay:-2.4s}
+    .splash-card{position:relative;width:min(92vw,560px);background:rgba(255,255,255,.84);backdrop-filter:blur(12px);border:1px solid rgba(216,230,223,.95);box-shadow:0 24px 70px rgba(5,45,35,.12);border-radius:32px;padding:34px 28px 26px;text-align:center;overflow:hidden}
+    .splash-card::before{content:"";position:absolute;inset:auto -15% -55% -15%;height:180px;background:radial-gradient(circle at center, rgba(17,122,99,.11), transparent 70%)}
+    .splash-logo{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:18px;animation:splashRise .85s ease both}
+    .splash-orb{width:92px;height:92px;border-radius:28px;background:linear-gradient(135deg,var(--brand),var(--brand-2));display:grid;place-items:center;color:#fff;font-weight:900;font-size:40px;box-shadow:0 18px 32px rgba(17,122,99,.28);position:relative;animation:splashPulse 2.2s ease-in-out infinite}
+    .splash-orb::after{content:"";position:absolute;inset:-10px;border:1px solid rgba(17,122,99,.18);border-radius:34px}
+    .splash-cross{width:46px;height:46px;border-radius:16px;border:1px solid var(--line);background:#fff;display:grid;place-items:center;color:var(--brand);font-size:24px;font-weight:900;box-shadow:var(--shadow)}
+    .splash-kicker{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.18em;margin:0 0 10px;animation:splashRise .85s ease .12s both}
+    .splash-title{margin:0;font-size:clamp(32px,6vw,54px);line-height:1.02;font-weight:900;color:var(--ink);animation:splashRise .9s ease .18s both}
+    .splash-subtitle{margin:12px 0 0;color:var(--muted);font-size:16px;animation:splashRise .9s ease .26s both}
+    .splash-bar{width:min(78%,340px);height:8px;border-radius:999px;background:var(--soft);margin:24px auto 18px;overflow:hidden;border:1px solid var(--line);animation:splashRise .9s ease .34s both}
+    .splash-bar>span{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--brand),var(--brand-2));animation:splashLoad 2.1s ease forwards .2s}
+    .splash-skip{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 18px;border-radius:999px;cursor:pointer;transition:transform .2s ease, background .2s ease;animation:splashRise .9s ease .42s both}
+    .splash-skip:hover{transform:translateY(-1px);background:var(--soft)}
+    @keyframes splashRise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+    @keyframes splashFloat{0%,100%{transform:translateY(0) translateX(0)}50%{transform:translateY(-18px) translateX(12px)}}
+    @keyframes splashPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+    @keyframes splashLoad{from{width:0}to{width:100%}}
+    @media (max-width:640px){.splash-card{padding:30px 20px 22px;border-radius:26px}.splash-orb{width:80px;height:80px;font-size:34px}.splash-cross{width:40px;height:40px;font-size:20px}.splash-kicker{letter-spacing:.12em}}
+
+</style>
+</head>
+<body class="splash-open">
+<div class="splash" id="splash" aria-label="Amara Solution AI intro">
+  <div class="splash-card">
+    <div class="splash-logo">
+      <div class="splash-orb">A</div>
+      <div class="splash-cross">✚</div>
+    </div>
+    <p class="splash-kicker" id="splashKicker">Powered by</p>
+    <h1 class="splash-title">Amara Solution AI</h1>
+    <p class="splash-subtitle" id="splashSubtitle">Khénifra Pharma</p>
+    <div class="splash-bar" aria-hidden="true"><span></span></div>
+    <button class="splash-skip" id="skipSplash" type="button">تخطي المقدمة</button>
+  </div>
+</div>
+<div class="app">
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Khénifra Pharma">
+      <span class="brandmark">✚</span>
+      <span><b id="brandName">خنيفرة فارما</b><small>KHÉNIFRA PHARMA</small></span>
+    </a>
+    <div class="lang-wrap">
+      <label for="lang">🌐</label>
+      <select id="lang" aria-label="Language">
+        <option value="ar">العربية</option>
+        <option value="fr">Français</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow"><span class="dot"></span><span id="eyebrow"></span></div>
+    <h1 id="headline"></h1>
+    <p class="lead" id="lead"></p>
+    <div class="hero-meta"><span id="city"></span><span id="todayLabel"></span></div>
+  </section>
+
+  <div class="banner"><span>ⓘ</span><div><b id="noticeTitle"></b><div id="noticeBody"></div></div></div>
+
+  <nav class="tabs">
+    <button data-tab="today" class="active" id="tabToday"></button>
+    <button data-tab="night" id="tabNight"></button>
+    <button data-tab="holidays" id="tabHolidays"></button>
+    <button data-tab="map" id="tabMap"></button>
+    <button data-tab="info" id="tabInfo"></button>
+  </nav>
+
+  <section id="today" class="section active"></section>
+  <section id="night" class="section"></section>
+  <section id="holidays" class="section"></section>
+  <section id="map" class="section"></section>
+  <section id="info" class="section"></section>
+
+  <footer>
+    <strong id="footerBrand">Khénifra Pharma</strong>
+    <p id="footerText"></p>
+    <small id="footerSource"></small>
+    <div class="foot-actions"><button class="btn primary" id="shareAppBtn" type="button">مشاركة التطبيق</button><a class="btn primary" id="footerPhone" href="tel:+212620142441">☎ +212 6 20 14 24 41</a>
+      <a class="btn soft" id="contactMail" href="#"></a>
+      <button class="btn" id="copyContact"></button><button class="btn soft" id="openFeedback"></button>
+    </div>
+    <div class="foot-actions"><button class="btn soft" id="aboutLink" type="button">من نحن</button><button class="btn soft" id="privacyLink" type="button">سياسة الخصوصية</button><button class="btn soft" id="contactLink" type="button">اتصل بنا</button></div><div class="footer-note" id="footerNote"></div>
+  </footer>
+</div>
+
+<div class="modal" id="legalModal" aria-hidden="true"><div class="dialog feedback-dialog" role="dialog" aria-modal="true" aria-labelledby="legalTitle"><div class="dialog-head"><h2 id="legalTitle"></h2><button class="close" id="closeLegal" type="button" aria-label="Close">✕</button></div><div class="legal-content" id="legalContent"></div></div></div>
+
+<div class="modal" id="feedbackModal" aria-hidden="true">
+ <div class="dialog feedback-dialog" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle">
+   <div class="dialog-head"><div><h3 id="feedbackTitle"></h3><p class="small" id="feedbackIntro"></p></div><button class="close" id="closeFeedback" aria-label="Close">✕</button></div>
+   <form id="feedbackForm">
+    <label for="feedbackPharmacy" id="feedbackPharmacyLabel"></label>
+    <select id="feedbackPharmacy" required></select>
+    <label for="feedbackType" id="feedbackTypeLabel"></label>
+    <select id="feedbackType"><option value="incorrect"></option><option value="positive"></option><option value="other"></option></select>
+    <label for="feedbackMessage" id="feedbackMessageLabel"></label>
+    <textarea id="feedbackMessage" maxlength="1200" minlength="5" rows="5" required></textarea>
+    <div class="small" id="feedbackPrivacy"></div>
+    <button class="btn primary" id="feedbackSend" type="submit"></button>
+   </form>
+ </div>
+</div>
+<div class="modal" id="navModal" aria-hidden="true">
+  <div class="dialog">
+    <div class="dialog-head">
+      <div>
+        <h3 id="dialogTitle" style="margin:0 0 6px"></h3>
+        <div class="small" id="dialogSubtitle"></div>
+      </div>
+      <button class="close" id="closeModal" aria-label="Close">✕</button>
+    </div>
+    <div class="banner" id="modalWarn" style="display:none;margin:0 0 12px"><span>⚠</span><div id="modalWarnText"></div></div>
+    <div class="chooser">
+      <a class="btn soft" id="openGoogle" target="_blank" rel="noopener">Google Maps</a>
+      <a class="btn soft" id="openWaze" target="_blank" rel="noopener">Waze</a>
+      <a class="btn soft" id="openApple" target="_blank" rel="noopener">Apple Maps</a>
+    </div>
+    <div class="route-grid">
+      <div class="route-panel">
+        <label id="startLabel" for="startInput"></label>
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:10px">
+          <button class="btn primary" id="useMyLocation"></button>
+          <input id="startInput" placeholder="" />
+        </div>
+        <div class="route-actions">
+          <button class="btn primary" id="showRoute"></button>
+          <button class="btn" id="showPlace"></button>
+        </div>
+        <div class="small" id="routeHelp" style="margin-top:10px"></div>
+      </div>
+      <iframe class="route-map" id="routeFrame" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+</div>
+
+<script src="./config.local.js"></script>
+<script>
+(function(){
+  const MAPS_KEY = window.KHENIFRA_GOOGLE_MAPS_KEY || '';
+  const email = 'yopi.simoni@gmail.com';
+  const contactPhone = '+212620142441';
+  const currentWeek = {start:'2026-10-26', end:'2026-11-01'};
+  const weeklyPharmacies = [
+    {id:'oum-el-qora', name:'OUM EL QORA', nameAr:'صيدلية أم القرى', phone:'0535384143', address:'Lotissement El Abdellaoui, route de Meknès n°31 bis, Khénifra', verified:false, source:'Directory references + user schedule'},
+    {id:'el-korss', name:'EL KORSS', nameAr:'صيدلية الكورس', phone:'0535588558', address:'Hay El Kors, rue 2 n°23, Khénifra', verified:false, source:'Directory references + user schedule'}
+  ];
+  // From the user-provided C.R.P.O.S. 2026 holiday schedule. Unconfirmed religious dates remain flagged.
+  const holidaySchedule = [
+    {date:'2026-01-11', ar:'مناسبة وطنية',fr:'Fête nationale', en:'National holiday', names:['الحراسة الأسبوعية'], regular:true},
+    {date:'2026-03-20', ar:'عيد الفطر',fr:'Aïd al-Fitr',en:'Eid al-Fitr', names:['أجدير','أكلمام'], tentative:true},
+    {date:'2026-05-01', ar:'عيد الشغل',fr:'Fête du Travail',en:'Labour Day', names:['أم الربيع','صيدلية المسيرة الخضراء']},
+    {date:'2026-05-27', ar:'عيد الأضحى',fr:'Aïd al-Adha',en:'Eid al-Adha', names:['المسيرة السفلى','بوفولوسن'], tentative:true},
+    {date:'2026-06-17', ar:'فاتح محرم',fr:'1er Moharram',en:'Islamic New Year', names:['العمران','واليلي'], tentative:true},
+    {date:'2026-07-30', ar:'عيد العرش',fr:'Fête du Trône',en:'Throne Day', names:['أفيلال','الوحدة']},
+    {date:'2026-08-25', ar:'المولد النبوي',fr:'Aïd al-Mawlid',en:'Mawlid', names:['الجديدة','القروية'], tentative:true},
+    {date:'2026-11-18', ar:'عيد الاستقلال',fr:'Fête de l’Indépendance',en:'Independence Day', names:['ابن رشد','تزارت اعراضين']}
+  ];
+  let nightSchedule = [];
+  const hiddenDirectory = [];
+  const allKnown = [...weeklyPharmacies];
+
+  const tr = {
+    ar:{dir:'rtl', brandName:'خنيفرة فارما', eyebrow:'دليلك المحلي للصيدليات', headline:'صيدليات الحراسة،<br><em>بشكل أوضح وأقرب.</em>', lead:'اعرف صيدليات الحراسة الضرورية الآن، واتصل أو اعرض الاتجاهات بسرعة، من غير فوضى ولا قوائم زائدة.', city:'📍 خنيفرة، المغرب', noticeTitle:'البرنامج مرجعي ويحتاج تحققاً', noticeBody:'المعلومات مبنية على الجداول والوثائق المتوفرة. اتصل بالصيدلية أو تحقق محلياً قبل التنقل، خصوصاً في الحراسة الليلية.', tabToday:'هذا الأسبوع', tabHolidays:'حراسة الأعياد',holidayDescription:'البرنامج الاستثنائي للمناسبات والعطل الرسمية لسنة 2026',holidayWarning:'التواريخ الدينية قابلة للتغيير، وقد تتغير الحراسة إذا وافقت العطلة نهاية الأسبوع. اتصل قبل التنقل.',holidayNextUpdate:'هذه لائحة حراسة الأعياد لسنة 2026. سنقوم بتحديثها مع بداية سنة 2027.',regularHoliday:'الحراسة الأسبوعية المعتادة',tabNight:'الحراسة الليلية', tabMap:'الخريطة', tabInfo:'معلومات', weekTitle:'الصيدليات المبرمجة للحراسة', weekSubtitle:'الحراسة الأسبوعية الرسمية', weekRange:'من 26 أكتوبر 2026 إلى 1 نونبر 2026', nightTitle:'برنامج الحراسة الليلية', nightSubtitle:'من 21:00 ليلاً إلى 09:00 صباحاً', nightRange:'من الإثنين 2026/10/26 إلى الأحد 2026/11/01', currentWeekOnly:'إظهار الضروري فقط', call:'اتصال', directions:'الاتجاهات', showOnMap:'عرض على الخريطة', viewOnMap:'عرض على الخريطة', searchHidden:'ابحث عن صيدلية عند الحاجة', searchPlaceholder:'ابحث بالاسم أو الهاتف', mapTitle:'خريطة الصيدلية', mapSubtitle:'لا نعرض كل الصيدليات علناً الآن. استعمل البحث أو اعرض صيدليات الحراسة الحالية فقط.', searchResults:'نتائج البحث', hiddenNote:'إخفاء جزء من الدليل حالياً لحماية البيانات وتبسيط التجربة.', verified:'موقع مؤكد', unverified:'موقع غير مؤكد', confirmBefore:'تحقق من الوجهة قبل الانطلاق', extra:'تفاصيل إضافية', source:'المصدر', feedbackQ:'هل المعلومات مفيدة؟', yes:'نعم', report:'إبلاغ', ownerPolicyTitle:'سياسة التعديل', ownerPolicyBody:'لا نتيح التعديل العام للبيانات. إذا كانت هناك ملاحظة أو تصحيح، تواصل معنا. تعديل بيانات الصيدلية أو اعتماد الموقع يتم فقط بعد مراجعتنا، وبموافقة مناسبة من صاحب الصيدلية عند الحاجة.', infoTitle:'ما الذي يظهر الآن؟', infoBody:'نعرض الآن فقط صيدليات الحراسة الحالية وبعض المعلومات الأساسية. بقية الدليل لا يظهر افتراضياً لتقليل الفوضى والحد من السحب الآلي.', weekGuardLabel:'حراسة أسبوعية', nightGuardLabel:'حراسة ليلية', tonight:'حراسة الليلة', openDirections:'افتح الملاحة', chooseNav:'اختر تطبيق الملاحة', useMyLocation:'استخدم موقعي', startPoint:'نقطة الانطلاق', startPlaceholder:'موقعي الحالي أو اكتب عنوان البداية', showRoute:'عرض المسار', showPlace:'عرض الصيدلية فقط', routeHelp:'تظهر المعاينة داخل التطبيق. ويمكنك فتح Google Maps أو Waze أو Apple Maps عند الحاجة.', startNavInGoogle:'بدء الملاحة في Google Maps', modalWarn:'موقع هذه الصيدلية غير مؤكد بشكل نهائي. راجع الوجهة قبل الانطلاق.', contact:'تواصل معنا', copyContact:'نسخ البريد', copied:'تم نسخ البريد', footerText:'تطبيق محلي مستقل لخنيفرة. نركز على الحاجات الأساسية: معرفة الصيدلية، الاتصال، والاتجاهات.', footerSource:'المصادر: الجداول المرفوعة من المستخدم + تحديثات يدوية مع مراجعة قبل النشر. آخر دورة معروضة: 2026', reportMsg:'إذا كانت لديك ملاحظة أو كنت صاحب صيدلية وتريد تصحيحاً، راسلنا.', noResults:'لا توجد نتائج مطابقة حالياً.',feedbackTitle:'ملاحظات واقتراحات',feedbackIntro:'أرسل ملاحظة عن صيدلية، أو اقترح تصحيحاً للمراجعة فقط.',feedbackPharmacyLabel:'الصيدلية',feedbackTypeLabel:'نوع الملاحظة',feedbackMessageLabel:'اكتب ملاحظتك',feedbackPrivacy:'ستفتح رسالة في تطبيق بريدك. لا تُنشر الملاحظات ولا تعدّل بيانات الصيدلية تلقائياً. لا ترسل معلومات صحية شخصية.',feedbackSend:'إرسال عبر البريد',feedbackOpen:'أرسل ملاحظة',feedbackTypes:['معلومة غير صحيحة','تجربة إيجابية','اقتراح آخر'],feedbackPlaceholder:'ما الذي لاحظته؟',footerNote:'هذه البيانات تخص 2026 وقد تتغير. سنقوم بتحديث اللوائح مع بداية 2027. كل التغييرات والملاحظات لا تُنشر إلا بعد مراجعة الإدارة.',nightBadge:'🌙 الحراسة الليلية',nightHours:'21:00 إلى 09:00'},
+    fr:{dir:'ltr', brandName:'Khénifra Pharma', eyebrow:'Votre guide local des pharmacies', headline:'Pharmacies de garde,<br><em>plus claires et plus proches.</em>', lead:'Consultez uniquement les pharmacies utiles maintenant, appelez rapidement et affichez l’itinéraire sans surcharge.', city:'📍 Khénifra, Maroc', noticeTitle:'Le programme reste indicatif', noticeBody:'Les informations proviennent des documents disponibles. Appelez la pharmacie ou vérifiez localement avant de vous déplacer, surtout pour la garde de nuit.', tabToday:'Cette semaine', tabHolidays:'Gardes des jours fériés',holidayDescription:'Programme des jours fériés et des fêtes de 2026',holidayWarning:'Les dates religieuses et les gardes peuvent changer, notamment les week-ends. Appelez avant de vous déplacer.',holidayNextUpdate:'Cette liste concerne 2026. Elle sera actualisée au début de 2027.',regularHoliday:'Garde hebdomadaire habituelle',tabNight:'Garde de nuit', tabMap:'Carte', tabInfo:'Infos', weekTitle:'Pharmacies programmées', weekSubtitle:'Garde hebdomadaire officielle', weekRange:'Du 26 octobre 2026 au 1 novembre 2026', nightTitle:'Programme de garde de nuit', nightSubtitle:'De 21:00 à 09:00', nightRange:'Du lundi 2026/10/26 au dimanche 2026/11/01', currentWeekOnly:'Essentiel uniquement', call:'Appeler', directions:'Itinéraire', showOnMap:'Voir sur la carte', viewOnMap:'Voir sur la carte', searchHidden:'Rechercher une pharmacie si nécessaire', searchPlaceholder:'Rechercher par nom ou téléphone', mapTitle:'Carte de la pharmacie', mapSubtitle:'Nous n’affichons pas tout l’annuaire publiquement pour le moment. Utilisez la recherche ou les gardes actuelles.', searchResults:'Résultats', hiddenNote:'Une partie de l’annuaire est volontairement masquée pour simplifier l’expérience et limiter l’extraction.', verified:'Emplacement vérifié', unverified:'Emplacement non vérifié', confirmBefore:'Vérifiez la destination avant de partir', extra:'Détails supplémentaires', source:'Source', feedbackQ:'Ces informations sont-elles utiles ?', yes:'Oui', report:'Signaler', ownerPolicyTitle:'Politique de modification', ownerPolicyBody:'La modification publique des données n’est pas autorisée. Pour une correction, contactez-nous. Toute modification publiée reste soumise à notre validation et, si besoin, à l’accord approprié du propriétaire.', infoTitle:'Que montrons-nous maintenant ?', infoBody:'Nous montrons seulement les pharmacies de garde actuelles et l’essentiel. Le reste de l’annuaire n’est pas affiché par défaut.', weekGuardLabel:'Garde hebdomadaire', nightGuardLabel:'Garde de nuit', tonight:'Garde de ce soir', openDirections:'Ouvrir la navigation', chooseNav:'Choisir l’application de navigation', useMyLocation:'Utiliser ma position', startPoint:'Point de départ', startPlaceholder:'Ma position actuelle ou une adresse de départ', showRoute:'Afficher l’itinéraire', showPlace:'Afficher la pharmacie', routeHelp:'L’aperçu reste dans l’application. Vous pouvez aussi ouvrir Google Maps, Waze ou Apple Maps.', startNavInGoogle:'Démarrer dans Google Maps', modalWarn:'L’emplacement de cette pharmacie n’est pas confirmé de manière définitive. Vérifiez la destination avant de partir.', contact:'Nous contacter', copyContact:'Copier l’email', copied:'Email copié', footerText:'Application locale indépendante pour Khénifra. Nous nous concentrons sur l’essentiel : trouver la pharmacie, appeler et se diriger.', footerSource:'Sources : tableaux fournis par l’utilisateur + mises à jour manuelles validées avant publication. Cycle affiché : 2026', reportMsg:'Si vous avez une remarque ou si vous êtes propriétaire d’une pharmacie, contactez-nous.', noResults:'Aucun résultat correspondant pour le moment.',feedbackTitle:'Avis et suggestions',feedbackIntro:'Signalez une information ou suggérez une correction pour examen.',feedbackPharmacyLabel:'Pharmacie',feedbackTypeLabel:'Type de retour',feedbackMessageLabel:'Votre message',feedbackPrivacy:'Votre application de messagerie s’ouvrira. Aucun changement automatique. Ne transmettez aucune information médicale personnelle.',feedbackSend:'Envoyer par e-mail',feedbackOpen:'Donner un avis',feedbackTypes:['Information incorrecte','Expérience positive','Autre suggestion'],feedbackPlaceholder:'Qu’avez-vous remarqué ?',footerNote:'Ces données concernent 2026 et peuvent changer. Les listes seront actualisées au début de 2027. Toute correction est examinée avant publication.',nightBadge:'🌙 Garde de nuit',nightHours:'21:00 à 09:00'},
+    en:{dir:'ltr', brandName:'Khénifra Pharma', eyebrow:'Your local pharmacy guide', headline:'Duty pharmacies,<br><em>clearer and closer.</em>', lead:'See only the pharmacies people need right now, call quickly, and view directions without clutter.', city:'📍 Khénifra, Morocco', noticeTitle:'The schedule is reference information', noticeBody:'Information is based on available schedules and documents. Call the pharmacy or verify locally before travelling, especially for the night shift.', tabToday:'This week', tabHolidays:'Holiday duty',holidayDescription:'2026 public and religious holiday duty schedule',holidayWarning:'Religious dates and weekend arrangements may change. Call before travelling.',holidayNextUpdate:'This list covers 2026. It will be updated at the beginning of 2027.',regularHoliday:'Regular weekly duty',tabNight:'Night shift', tabMap:'Map', tabInfo:'Info', weekTitle:'Scheduled duty pharmacies', weekSubtitle:'Official weekly duty', weekRange:'From 26 October 2026 to 1 November 2026', nightTitle:'Night-shift program', nightSubtitle:'From 21:00 to 09:00', nightRange:'From Monday 2026/10/26 to Sunday 2026/11/01', currentWeekOnly:'Show only what matters now', call:'Call', directions:'Directions', showOnMap:'View on map', viewOnMap:'View on map', searchHidden:'Search a pharmacy when needed', searchPlaceholder:'Search by name or phone', mapTitle:'Pharmacy map', mapSubtitle:'We are not showing the full directory publicly right now. Use search or current duty pharmacies.', searchResults:'Results', hiddenNote:'Part of the directory is intentionally hidden to keep the experience simple and reduce scraping.', verified:'Verified location', unverified:'Unverified location', confirmBefore:'Confirm the destination before travelling', extra:'Extra details', source:'Source', feedbackQ:'Is this information useful?', yes:'Yes', report:'Report', ownerPolicyTitle:'Editing policy', ownerPolicyBody:'Public users cannot edit pharmacy data. If something is wrong, contact us. Any published correction requires our review and, when appropriate, the pharmacy owner’s approval.', infoTitle:'What is visible now?', infoBody:'We currently show only active duty pharmacies and essential information. The rest of the directory is not displayed by default.', weekGuardLabel:'Weekly duty', nightGuardLabel:'Night shift', tonight:'Tonight’s shift', openDirections:'Open navigation', chooseNav:'Choose your navigation app', useMyLocation:'Use my location', startPoint:'Starting point', startPlaceholder:'Current location or enter a starting address', showRoute:'Show route', showPlace:'Show pharmacy only', routeHelp:'The preview stays inside the app. You can also open Google Maps, Waze, or Apple Maps.', startNavInGoogle:'Start in Google Maps', modalWarn:'This pharmacy location is not fully verified. Review the destination before travelling.', contact:'Contact us', copyContact:'Copy email', copied:'Email copied', footerText:'Independent local app for Khénifra. We focus on the essentials: find the pharmacy, call, and get directions.', footerSource:'Sources: user-supplied schedules + manual updates reviewed before publishing. Current published cycle: 2026', reportMsg:'If you have a correction or you are a pharmacy owner, contact us.', noResults:'No matching results right now.',feedbackTitle:'Feedback and suggestions',feedbackIntro:'Report a pharmacy detail or suggest a correction for review.',feedbackPharmacyLabel:'Pharmacy',feedbackTypeLabel:'Feedback type',feedbackMessageLabel:'Your message',feedbackPrivacy:'Your email app will open. Feedback does not change data automatically. Do not include personal health information.',feedbackSend:'Send via email',feedbackOpen:'Leave feedback',feedbackTypes:['Incorrect information','Positive experience','Other suggestion'],feedbackPlaceholder:'What did you notice?',footerNote:'These listings are for 2026 and may change. We will update them at the start of 2027. All corrections require admin review before publication.',nightBadge:'🌙 Night duty',nightHours:'21:00 to 09:00'}
+  };
+
+  const extras = {
+    ar:{shareApp:'مشاركة التطبيق',sharePharmacy:'مشاركة الصيدلية',about:'من نحن',privacy:'سياسة الخصوصية',contactPage:'اتصل بنا',copiedLink:'تم نسخ الرابط',localWarning:'هذا الرابط محلي ولا يمكن للآخرين فتحه قبل نشر الموقع.', shareTitle:'صيدلية الحراسة في خنيفرة',aboutBody:'خنيفرة فارما دليل محلي مستقل يساعد سكان خنيفرة على الاطلاع على جداول الحراسة المتاحة والتواصل مع الصيدليات وإيجاد الاتجاهات. لسنا جهة صحية رسمية ولا نمثل نقابة الصيادلة. قد تتغير أوقات الحراسة، لذا يرجى الاتصال قبل التنقل.',privacyBody:'نستخدم موقعك الجغرافي فقط بعد موافقتك لعرض الاتجاهات والقرب منك. تتم معالجة طلب تحديد الموقع في المتصفح وإرساله إلى خدمة الخرائط عند استخدامك لها. نستخدم Google Maps وروابط Waze وApple Maps، وتخضع هذه الخدمات لسياساتها الخاصة. نحفظ تفضيل اللغة محلياً في المتصفح. يُرسل نموذج الملاحظات عبر تطبيق بريدك فقط، ولا نملك حالياً قاعدة بيانات عامة لحفظ البلاغات. لا ترسل معلومات طبية شخصية. لا ننشر بياناتك الشخصية، ولا نتيح تعديل سجلات الصيدليات دون مراجعة.',contactBody:'لإبلاغنا بخطأ في اسم صيدلية أو رقمها أو عنوانها، أو لطلب تعديل بصفتك مالك الصيدلية، تواصل معنا عبر الهاتف أو البريد. جميع طلبات التصحيح تخضع للمراجعة قبل النشر.'},
+    fr:{shareApp:'Partager l’application',sharePharmacy:'Partager la pharmacie',about:'À propos',privacy:'Confidentialité',contactPage:'Contact',copiedLink:'Lien copié',localWarning:'Ce lien local ne fonctionne pas pour les autres avant une mise en ligne.',shareTitle:'Pharmacie de garde à Khénifra',aboutBody:'Khénifra Pharma est un guide local indépendant pour consulter les gardes, contacter les pharmacies et obtenir un itinéraire. Nous ne représentons pas une autorité de santé. Appelez avant de vous déplacer.',privacyBody:'La position est demandée avec votre autorisation pour les itinéraires et la proximité. Les services Google Maps, Waze et Apple Maps ont leurs propres politiques. La langue est stockée localement. Les avis ouvrent votre logiciel de messagerie et ne modifient aucune fiche. Ne transmettez pas de données médicales personnelles.',contactBody:'Pour signaler une erreur ou faire une demande en tant que propriétaire, contactez-nous. Les modifications doivent être examinées avant publication.'},
+    en:{shareApp:'Share app',sharePharmacy:'Share pharmacy',about:'About us',privacy:'Privacy policy',contactPage:'Contact us',copiedLink:'Link copied',localWarning:'A localhost link cannot be opened by other people before the site is published.',shareTitle:'Duty pharmacy in Khénifra',aboutBody:'Khénifra Pharma is an independent local guide for pharmacy duty schedules, calling pharmacies, and directions. We are not a health authority. Please call before travelling.',privacyBody:'Geolocation is requested only with permission for directions and nearby results. Map services have their own privacy policies. Language preference is saved locally. Feedback opens your email app and never changes pharmacy information automatically. Please do not submit personal medical information.',contactBody:'For errors or pharmacy-owner correction requests, contact us by phone or email. All changes require review before publication.'}
+  };
+  function eText(k){return extras[lang][k] || k;}
+  let lang = localStorage.getItem('kp_lang') || 'ar';
+  let selectedMapPharmacy = weeklyPharmacies[0];
+  let searchResults = [];
+  let modalPharmacy = null;
+  let currentCoords = null;
+
+  const els = {
+    today: document.getElementById('today'), night: document.getElementById('night'), map: document.getElementById('map'), info: document.getElementById('info'),
+    lang: document.getElementById('lang'), brandName: document.getElementById('brandName'), eyebrow: document.getElementById('eyebrow'), headline: document.getElementById('headline'), lead: document.getElementById('lead'), city: document.getElementById('city'), todayLabel: document.getElementById('todayLabel'), noticeTitle: document.getElementById('noticeTitle'), noticeBody: document.getElementById('noticeBody'),
+    tabToday: document.getElementById('tabToday'), tabNight: document.getElementById('tabNight'), tabHolidays: document.getElementById('tabHolidays'), tabMap: document.getElementById('tabMap'), tabInfo: document.getElementById('tabInfo'), footerBrand: document.getElementById('footerBrand'), footerText: document.getElementById('footerText'), footerSource: document.getElementById('footerSource'), contactMail: document.getElementById('contactMail'), copyContact: document.getElementById('copyContact'),
+    navModal: document.getElementById('navModal'), dialogTitle: document.getElementById('dialogTitle'), dialogSubtitle: document.getElementById('dialogSubtitle'), closeModal: document.getElementById('closeModal'), openGoogle: document.getElementById('openGoogle'), openWaze: document.getElementById('openWaze'), openApple: document.getElementById('openApple'), startLabel: document.getElementById('startLabel'), useMyLocation: document.getElementById('useMyLocation'), startInput: document.getElementById('startInput'), showRoute: document.getElementById('showRoute'), showPlace: document.getElementById('showPlace'), routeHelp: document.getElementById('routeHelp'), routeFrame: document.getElementById('routeFrame'), modalWarn: document.getElementById('modalWarn'), modalWarnText: document.getElementById('modalWarnText')
+  };
+
+  function t(k){ return tr[lang][k] || k; }
+  function escapeHtml(str=''){ return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  
+  function updateSplashTexts(){
+    const kicker = document.getElementById('splashKicker');
+    const subtitle = document.getElementById('splashSubtitle');
+    const skip = document.getElementById('skipSplash');
+    if(!kicker || !subtitle || !skip) return;
+    kicker.textContent = 'Powered by';
+    subtitle.textContent = 'Khénifra Pharma';
+    skip.textContent = lang==='ar' ? 'تخطي المقدمة' : (lang==='fr' ? 'Passer l’intro' : 'Skip intro');
+  }
+
+  function hideSplash(){
+    const splash = document.getElementById('splash');
+    if(!splash || splash.classList.contains('is-hidden')) return;
+    splash.classList.add('is-hidden');
+    document.body.classList.remove('splash-open');
+    window.setTimeout(()=>{ splash.style.display='none'; }, 600);
+  }
+
+function setLang(next){ lang = next; localStorage.setItem('kp_lang', lang); document.documentElement.lang = lang; document.documentElement.dir = tr[lang].dir; els.lang.value=lang; document.title = 'Khénifra Pharma | ' + t('tabToday'); els.brandName.textContent=t('brandName'); els.eyebrow.textContent=t('eyebrow'); els.headline.innerHTML=t('headline'); els.lead.textContent=t('lead'); els.city.textContent=t('city'); els.noticeTitle.textContent=t('noticeTitle'); els.noticeBody.textContent=t('noticeBody'); els.tabToday.textContent=t('tabToday'); els.tabNight.textContent=t('tabNight'); els.tabHolidays.textContent=t('tabHolidays'); els.tabMap.textContent=t('tabMap'); els.tabInfo.textContent=t('tabInfo'); els.footerText.textContent=t('footerText'); els.footerSource.textContent=t('footerSource'); els.contactMail.textContent=t('contact'); els.contactMail.href=`mailto:${email}`; els.contactMail.style.display='inline-flex'; els.copyContact.textContent=t('copyContact'); els.copyContact.style.display='inline-flex'; document.getElementById('openFeedback').textContent=t('feedbackOpen'); document.getElementById('footerNote').textContent=t('footerNote'); updateSplashTexts(); document.getElementById('shareAppBtn').textContent=eText('shareApp'); document.getElementById('aboutLink').textContent=eText('about'); document.getElementById('privacyLink').textContent=eText('privacy'); document.getElementById('contactLink').textContent=eText('contactPage'); updateFeedbackLabels(); renderAll(); }
+  function isoToday(){ const d = new Date(); const y = d.getFullYear(); const m = String(d.getMonth()+1).padStart(2,'0'); const day = String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
+  function formatDate(dateStr){ const date = new Date(dateStr + 'T12:00:00'); return date.toLocaleDateString(lang==='ar'?'ar-MA':lang==='fr'?'fr-FR':'en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'}); }
+  function getTodayNight(){ return nightSchedule[0] || null; }
+  function pharmacyQuery(p){ return `${p.nameAr || p.name}, ${p.address}, Khénifra, Morocco`; }
+  function phoneHref(p){ return `tel:${(p.phone||'').replace(/\s+/g,'')}`; }
+  function mapEmbedPlace(query){ if(MAPS_KEY) return `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(MAPS_KEY)}&q=${encodeURIComponent(query)}`; return `about:blank`; }
+  function mapEmbedDirections(origin, destination){ if(MAPS_KEY) return `https://www.google.com/maps/embed/v1/directions?key=${encodeURIComponent(MAPS_KEY)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&mode=driving`; return 'about:blank'; }
+  function navUrls(p, origin=''){ const query = pharmacyQuery(p); const destination = query; const google = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}&travelmode=driving` + (origin ? `&origin=${encodeURIComponent(origin)}`:'');
+    const waze = p.lat && p.lng ? `https://www.waze.com/ul?ll=${p.lat},${p.lng}&navigate=yes` : `https://www.waze.com/ul?q=${encodeURIComponent(destination)}&navigate=yes`;
+    const apple = `https://maps.apple.com/?daddr=${encodeURIComponent(destination)}&dirflg=d`;
+    return {google,waze,apple}; }
+  function reportMail(pharmacy){ return `mailto:${email}?subject=${encodeURIComponent('Khénifra Pharma report: '+pharmacy.name)}&body=${encodeURIComponent(`${t('reportMsg')}\n\nPharmacy: ${pharmacy.name}\nPhone: ${pharmacy.phone || '-'}\nAddress: ${pharmacy.address || '-'}\n`)}`; }
+  function openMapInApp(p){ selectedMapPharmacy = p; switchTab('map'); renderMap(); window.scrollTo({top:0,behavior:'smooth'}); }
+  function openDirections(p){ modalPharmacy = p; els.navModal.classList.add('open'); els.navModal.setAttribute('aria-hidden','false'); els.dialogTitle.textContent = `${t('directions')} · ${p.name}`; els.dialogSubtitle.textContent = p.address || ''; els.startLabel.textContent = t('startPoint'); els.startInput.placeholder = t('startPlaceholder'); els.useMyLocation.textContent = t('useMyLocation'); els.showRoute.textContent = t('showRoute'); els.showPlace.textContent = t('showPlace'); els.routeHelp.textContent = t('routeHelp'); const warn = !p.verified; els.modalWarn.style.display = warn ? 'flex' : 'none'; els.modalWarnText.textContent = t('modalWarn'); els.startInput.value=''; const urls = navUrls(p); els.openGoogle.textContent = 'Google Maps'; els.openWaze.textContent = 'Waze'; els.openApple.textContent = 'Apple Maps'; els.openGoogle.href = urls.google; els.openWaze.href = urls.waze; els.openApple.href = urls.apple; els.routeFrame.src = mapEmbedPlace(pharmacyQuery(p)); }
+  function closeModal(){ els.navModal.classList.remove('open'); els.navModal.setAttribute('aria-hidden','true'); }
+  function chooseMyLocation(){ if(!navigator.geolocation){ alert(lang==='ar'?'تحديد الموقع غير مدعوم على هذا الجهاز.':lang==='fr'?'La géolocalisation n’est pas disponible sur cet appareil.':'Location is not supported on this device.'); return; } navigator.geolocation.getCurrentPosition(pos=>{ currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`; els.startInput.value = currentCoords; }, ()=> alert(lang==='ar'?'تعذر تحديد موقعك. تحقق من إذن الموقع.':lang==='fr'?'Impossible d’accéder à votre position. Vérifiez les autorisations.':'Unable to access your location. Check location permission.')); }
+  function showRoute(){ if(!modalPharmacy) return; const origin = (els.startInput.value || 'Khénifra, Morocco').trim(); const destination = pharmacyQuery(modalPharmacy); const urls = navUrls(modalPharmacy, origin); els.openGoogle.href = urls.google; els.openWaze.href = urls.waze; els.openApple.href = urls.apple; els.routeFrame.src = mapEmbedDirections(origin, destination); }
+  function showPlace(){ if(!modalPharmacy) return; els.routeFrame.src = mapEmbedPlace(pharmacyQuery(modalPharmacy)); }
+  function badge(p){ return `<span class="badge ${p.verified ? 'ok':'warn'}">${p.verified ? t('verified') : t('unverified')}</span>`; }
+  function actionButtons(p){ return `<div class="actions"><a class="btn primary" href="${phoneHref(p)}">☎ ${t('call')}</a><button class="btn soft" data-action="directions" data-id="${escapeHtml(p.id || p.name)}">🧭 ${t('directions')}</button></div>`; }
+  function smallActions(p){ return `<div class="share-line"><button class="pill" data-action="share-pharmacy" data-id="${escapeHtml(p.id || p.name)}">↗ ${eText('sharePharmacy')}</button></div>`+`<div class="mini-actions"><button class="btn soft" data-action="viewmap" data-id="${escapeHtml(p.id || p.name)}">🗺 ${t('viewOnMap')}</button><button class="btn" data-action="directions" data-id="${escapeHtml(p.id || p.name)}">🧭 ${t('openDirections')}</button>${p.phone?`<a class="btn primary" href="${phoneHref(p)}">☎ ${t('call')}</a>`:''}</div>`; }
+  function shareButton(p){return `<div class="share-line"><button class="pill" data-action="share-pharmacy" data-id="${escapeHtml(p.id || p.name)}">↗ ${eText('sharePharmacy')}</button></div>`;}
+  function extraDetails(p){ return shareButton(p)+`<details><summary>${t('extra')}</summary><div class="small"><b>${t('source')}:</b> ${escapeHtml(p.source || '-')}<br>${escapeHtml(p.address || '')}<br>${!p.verified ? '⚠ '+t('confirmBefore'):''}</div></details>`; }
+  function feedbackRow(p){ return `<div class="feedback"><div class="small">${t('feedbackQ')}</div><div class="choices"><button class="pill" data-action="helpful">${t('yes')}</button><button class="pill" data-action="feedback" data-id="${escapeHtml(p.id || p.name)}">${t('report')}</button></div></div>`; }
+  function renderToday(){ const cards = (isoToday()>=currentWeek.start && isoToday()<=currentWeek.end ? weeklyPharmacies : []).map(p=>`<article class="card"><div class="card-top"><div><div class="badge ok">${t('weekGuardLabel')}</div><div class="name">${escapeHtml(p.nameAr || p.name)}</div></div>${badge(p)}</div><div class="pharmacy">${escapeHtml(p.nameAr || p.name)}</div><div class="address">${escapeHtml(p.address)}</div><div class="phone">☎ ${escapeHtml(p.phone)}</div>${actionButtons(p)}${feedbackRow(p)}${extraDetails(p)}</article>`).join(''); const night = getTodayNight(); const nightCard = night ? `<article class="card night-card"><div class="night-label">${t('nightBadge')}</div><div class="card-top"><div><div class="badge ok">${t('tonight')}</div><div class="name">${escapeHtml(night.nameAr || night.name)}</div></div>${badge(night)}</div><div class="pharmacy">${escapeHtml(night.nameAr || night.name)}</div><div class="address">${formatDate(night.date)}<br>${escapeHtml(night.address)}</div><div class="phone">☎ ${escapeHtml(night.phone)}</div>${actionButtons(night)}${feedbackRow(night)}${extraDetails(night)}</article>` : '';
+    els.today.innerHTML = `<div class="panel"><div class="section-title"><div><h2>${t('weekTitle')}</h2><p>${t('weekSubtitle')} · ${t('weekRange')}</p></div><span class="badge">${t('currentWeekOnly')}</span></div><div class="cards">${cards}${nightCard}</div></div>`;
+  }
+  function renderNight(){
+    const item = getTodayNight();
+    const items = item ? `<article class="card night-card"><div class="night-label">${t('nightBadge')}</div><div class="card-top"><div><div class="badge ok">${formatDate(item.date)}</div><div class="name">${escapeHtml(item.nameAr)}</div></div>${badge(item)}</div><div class="pharmacy">${escapeHtml(item.nameAr)}</div><div class="address">${escapeHtml(item.address)}<br>⏰ ${escapeHtml(item.startTime)} – ${escapeHtml(item.endTime)}</div><div class="phone">☎ ${escapeHtml(item.phone)}</div>${actionButtons(item)}${extraDetails(item)}</article>` : `<div class="empty">${lang==='ar'?'لا توجد حراسة ليلية مؤكدة في الجدول الحالي لهذا الوقت.':lang==='fr'?'Aucune garde de nuit disponible pour ce créneau.':'No night duty scheduled for this time.'}</div>`;
+    els.night.innerHTML = `<div class="panel"><div class="section-title"><div><h2>${t('nightTitle')}</h2><p>${item ? formatDate(item.date) + ' · ' + item.startTime + ' – ' + item.endTime : t('noticeBody')}</p></div><span class="badge">${t('nightBadge')}</span></div><div class="cards">${items}</div></div>`;
+  }
+  function renderHolidays(){
+    const sorted=[...holidaySchedule].sort((a,b)=>a.date.localeCompare(b.date));
+    const cards=sorted.map(h=>{
+      const label = h[lang] || h.ar;
+      const date = formatDate(h.date);
+      const status = h.tentative ? `<span class="badge warn">${lang==='ar'?'التاريخ قابل للتأكيد':lang==='fr'?'Date à confirmer':'Date subject to confirmation'}</span>` : '';
+      const details = h.regular ? `<p class="small">${t('regularHoliday')}</p>` : `<div class="holiday-pharmacies">${h.names.map(n=>`<span class="holiday-chip">✚ ${escapeHtml(n)}</span>`).join('')}</div>`;
+      return `<article class="card holiday-card"><div class="card-top"><span class="badge">📅 ${escapeHtml(date)}</span>${status}</div><h3>${escapeHtml(label)}</h3>${details}</article>`;
+    }).join('');
+    document.getElementById('holidays').innerHTML=`<div class="panel"><div class="section-title"><div><h2>${t('tabHolidays')}</h2><p>${t('holidayDescription')}</p></div></div><div class="banner"><span>ⓘ</span><div><div>${t('holidayWarning')}</div><div style="margin-top:6px;font-weight:700">${t('holidayNextUpdate')}</div></div></div><div class="cards">${cards}</div></div>`;
+  }
+  function renderMap(){
+    const q = selectedMapPharmacy ? pharmacyQuery(selectedMapPharmacy) : 'Khénifra, Morocco';
+    const frameSrc = MAPS_KEY ? mapEmbedPlace(q) : 'about:blank';
+    const currentList = [...(isoToday()>=currentWeek.start && isoToday()<=currentWeek.end ? weeklyPharmacies : []), ...(getTodayNight() ? [getTodayNight()] : [])];
+    const cards = currentList.map(p=>`<article class="mini-card"><div class="mini-title"><b>${escapeHtml(p.nameAr || p.name)}</b>${badge(p)}</div><div class="small">${escapeHtml(p.address || '')}</div>${smallActions(p)}</article>`).join('');
+    els.map.innerHTML = `<div class="panel"><div class="section-title"><div><h2>${t('mapTitle')}</h2><p>${t('mapSubtitle')}</p></div></div><div class="map-shell"><div class="map-card"><iframe class="map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="${frameSrc}"></iframe></div><div class="list-stack">${cards}</div></div></div>`;
+  }
+  function renderInfo(){ els.info.innerHTML = `<div class="panel"><div class="section-title"><div><h2>${t('ownerPolicyTitle')}</h2><p>${t('ownerPolicyBody')}</p></div></div><p class="small">${t('noticeBody')}</p></div>`; }
+  async function shareThing(p){
+    const base=location.origin+location.pathname;
+    const url=p?base+'#pharmacy='+encodeURIComponent(p.id||p.name):base;
+    const title=p?(p.nameAr||p.name)+' | Khénifra Pharma':'Khénifra Pharma';
+    const text=p?`${p.nameAr||p.name} - ${p.phone||''} - ${p.address||''}`:eText('shareTitle');
+    if(location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.hostname==='[::1]') alert(eText('localWarning'));
+    try{if(navigator.share){await navigator.share({title,text,url});return;}}
+    catch(err){if(err.name==='AbortError')return;}
+    try{await navigator.clipboard.writeText(url);alert(eText('copiedLink'));}
+    catch(err){window.prompt(eText('shareApp'),url);}
+  }
+  function openLegal(kind){
+    const modal=document.getElementById('legalModal');const title=document.getElementById('legalTitle');const content=document.getElementById('legalContent');
+    const key=kind==='about'?'about':kind==='privacy'?'privacy':'contactPage';
+    title.textContent=eText(key);
+    content.replaceChildren();
+    const paragraph=document.createElement('p');paragraph.textContent=eText(kind==='about'?'aboutBody':kind==='privacy'?'privacyBody':'contactBody');content.appendChild(paragraph);
+    if(kind==='contact'){
+      const p=document.createElement('p');p.textContent='☎ '+contactPhone+'  ·  '+email;content.appendChild(p);
+      const a=document.createElement('a');a.className='btn soft';a.href='mailto:'+email;a.textContent=t('contact');content.appendChild(a);
+    }
+    modal.classList.add('open');modal.setAttribute('aria-hidden','false');
+  }
+  function bindActions(){ document.querySelectorAll('[data-action="share-pharmacy"]').forEach(el=>el.onclick=()=>{const p=findPharmacy(el.dataset.id);if(p)shareThing(p);}); document.querySelectorAll('[data-action="directions"]').forEach(el=> el.onclick = ()=>{ const id = el.getAttribute('data-id'); const p = findPharmacy(id); if(p) openDirections(p); }); document.querySelectorAll('[data-action="viewmap"]').forEach(el=> el.onclick = ()=>{ const id = el.getAttribute('data-id'); const p = findPharmacy(id); if(p) openMapInApp(p); }); document.querySelectorAll('[data-action="feedback"]').forEach(el=>el.onclick=()=>openFeedback(findPharmacy(el.getAttribute('data-id')))); document.querySelectorAll('[data-action="helpful"]').forEach(el=> el.onclick = ()=> alert(t('thanks') || 'Thanks')); }
+  function findPharmacy(id){ return [...weeklyPharmacies,...nightSchedule].find(p => (p.id || p.name) === id); }
+  function renderAll(){ els.todayLabel.textContent = formatDate(isoToday()); renderToday(); renderNight(); renderHolidays(); renderMap(); renderInfo(); bindActions(); }
+  function switchTab(tab){ document.querySelectorAll('.tabs button').forEach(btn=> btn.classList.toggle('active', btn.dataset.tab===tab)); document.querySelectorAll('.section').forEach(sec=> sec.classList.toggle('active', sec.id===tab)); }
+
+  let selectedFeedbackPharmacy='';
+  function feedbackOptions(){ const night=getTodayNight(); return [...weeklyPharmacies,...(night?[night]:[])]; }
+  function updateFeedbackLabels(){
+    const f=k=>document.getElementById(k);
+    f('feedbackTitle').textContent=t('feedbackTitle'); f('feedbackIntro').textContent=t('feedbackIntro');
+    f('feedbackPharmacyLabel').textContent=t('feedbackPharmacyLabel');f('feedbackTypeLabel').textContent=t('feedbackTypeLabel');
+    f('feedbackMessageLabel').textContent=t('feedbackMessageLabel');f('feedbackMessage').placeholder=t('feedbackPlaceholder');
+    f('feedbackPrivacy').textContent=t('feedbackPrivacy');f('feedbackSend').textContent=t('feedbackSend');
+    const types=f('feedbackType').options; tr[lang].feedbackTypes.forEach((x,i)=>types[i].textContent=x);
+    f('feedbackPharmacy').innerHTML='<option value="general">'+t('contact')+'</option>'+feedbackOptions().map(p=>'<option value="'+escapeHtml(p.name)+'">'+escapeHtml(p.nameAr||p.name)+'</option>').join('');
+    if(selectedFeedbackPharmacy) f('feedbackPharmacy').value=selectedFeedbackPharmacy;
+  }
+  function openFeedback(p){ selectedFeedbackPharmacy=p ? p.name : ''; updateFeedbackLabels();const m=document.getElementById('feedbackModal');m.classList.add('open');m.setAttribute('aria-hidden','false'); }
+  function closeFeedback(){ const m=document.getElementById('feedbackModal');m.classList.remove('open');m.setAttribute('aria-hidden','true'); }
+  document.getElementById('openFeedback').addEventListener('click',()=>openFeedback());
+  document.getElementById('closeFeedback').addEventListener('click',closeFeedback);
+  document.getElementById('feedbackModal').addEventListener('click',e=>{if(e.target.id==='feedbackModal')closeFeedback()});
+  document.getElementById('feedbackForm').addEventListener('submit',e=>{
+    e.preventDefault(); const p=document.getElementById('feedbackPharmacy').value;
+    const type=document.getElementById('feedbackType').selectedOptions[0].textContent;
+    const message=document.getElementById('feedbackMessage').value.trim(); if(message.length<5)return;
+    const subject='Khénifra Pharma Feedback: '+p;
+    const body='Pharmacy: '+p+'\nType: '+type+'\n\n'+message;
+    window.location.href='mailto:'+email+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  });
+  document.querySelectorAll('.tabs button').forEach(btn=> btn.addEventListener('click', ()=> switchTab(btn.dataset.tab)));
+  els.lang.addEventListener('change', e=> setLang(e.target.value));
+  els.closeModal.addEventListener('click', closeModal); els.navModal.addEventListener('click', e=>{ if(e.target===els.navModal) closeModal(); }); els.useMyLocation.addEventListener('click', chooseMyLocation); els.showRoute.addEventListener('click', showRoute); els.showPlace.addEventListener('click', showPlace); els.copyContact.addEventListener('click', async ()=>{ try{ await navigator.clipboard.writeText(email); const old=els.copyContact.textContent; els.copyContact.textContent=t('copied'); setTimeout(()=>els.copyContact.textContent=t('copyContact'),1200);}catch(e){window.prompt('Copy email', email);} });
+
+  async function loadNight(){
+    try {
+      const res = await fetch('/api/night/current', {cache:'no-store'});
+      if(!res.ok) throw new Error('Night data unavailable');
+      const data = await res.json();
+      nightSchedule = data.pharmacy ? [data.pharmacy] : [];
+      renderAll();
+    } catch(err){ nightSchedule=[]; renderAll(); console.warn('Night schedule unavailable'); }
+  }
+  document.getElementById('shareAppBtn').addEventListener('click',()=>shareThing(null));
+  document.getElementById('aboutLink').addEventListener('click',()=>openLegal('about'));
+  document.getElementById('privacyLink').addEventListener('click',()=>openLegal('privacy'));
+  document.getElementById('contactLink').addEventListener('click',()=>openLegal('contact'));
+  document.getElementById('closeLegal').addEventListener('click',()=>{document.getElementById('legalModal').classList.remove('open');});
+  document.getElementById('legalModal').addEventListener('click',e=>{if(e.target.id==='legalModal')e.target.classList.remove('open');});
+  function handleSharedLink(){
+    if(!location.hash.startsWith('#pharmacy='))return;
+    let id;try{id=decodeURIComponent(location.hash.slice(10));}catch{return;}
+    const p=findPharmacy(id);if(!p)return;
+    const night=nightSchedule.some(x=>(x.id||x.name)===id);
+    switchTab(night?'night':'today');
+    setTimeout(()=>{const el=[...document.querySelectorAll('[data-action="directions"]')].find(x=>x.dataset.id===id);el?.closest('.card')?.scrollIntoView({behavior:'smooth',block:'center'});},120);
+  }
+  window.addEventListener('hashchange',handleSharedLink);
+  
+  document.getElementById('skipSplash')?.addEventListener('click', hideSplash);
+  window.setTimeout(hideSplash, 2600);
+
+setLang(lang);
+  loadNight().then?.(handleSharedLink);
+  handleSharedLink();
+
+})();
+</script>
+</body>
+</html>
