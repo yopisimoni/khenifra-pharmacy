@@ -1,1 +1,32 @@
-{"version":2,"rewrites":[{"source":"/api/night/current","destination":"/api/night"},{"source":"/config.local.js","destination":"/api/maps_config"}],"headers":[{"source":"/(.*)","headers":[{"key":"X-Content-Type-Options","value":"nosniff"},{"key":"Referrer-Policy","value":"strict-origin-when-cross-origin"}]}]}
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/week/current",
+      "destination": "/api/week"
+    },
+    {
+      "source": "/api/night/current",
+      "destination": "/api/night"
+    },
+    {
+      "source": "/config.local.js",
+      "destination": "/api/maps_config"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    }
+  ]
+}
