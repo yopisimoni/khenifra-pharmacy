@@ -194,11 +194,8 @@
   const MAPS_KEY = window.KHENIFRA_GOOGLE_MAPS_KEY || '';
   const email = 'yopi.simoni@gmail.com';
   const contactPhone = '+212620142441';
-  const currentWeek = {start:'2026-10-26', end:'2026-11-01'};
-  const weeklyPharmacies = [
-    {id:'oum-el-qora', name:'OUM EL QORA', nameAr:'صيدلية أم القرى', phone:'0535384143', address:'Lotissement El Abdellaoui, route de Meknès n°31 bis, Khénifra', verified:false, source:'Directory references + user schedule'},
-    {id:'el-korss', name:'EL KORSS', nameAr:'صيدلية الكورس', phone:'0535588558', address:'Hay El Kors, rue 2 n°23, Khénifra', verified:false, source:'Directory references + user schedule'}
-  ];
+  let currentWeek = {start:'', end:''};
+  let weeklyPharmacies = [];
   // From the user-provided C.R.P.O.S. 2026 holiday schedule. Unconfirmed religious dates remain flagged.
   const holidaySchedule = [
     {date:'2026-01-11', ar:'مناسبة وطنية',fr:'Fête nationale', en:'National holiday', names:[], regular:true},
@@ -212,7 +209,7 @@
   ];
   let nightSchedule = [];
   const hiddenDirectory = [];
-  const allKnown = [...weeklyPharmacies];
+  let allKnown = [];
 
   const tr = {
     ar:{dir:'rtl', brandName:'خنيفرة فارما', eyebrow:'دليلك المحلي للصيدليات', headline:'صيدليات الحراسة،<br><em>بشكل أوضح وأقرب.</em>', lead:'اعرف صيدليات الحراسة الضرورية الآن، واتصل أو اعرض الاتجاهات بسرعة، من غير فوضى ولا قوائم زائدة.', city:'📍 خنيفرة، المغرب', noticeTitle:'البرنامج مرجعي ويحتاج تحققاً', noticeBody:'المعلومات مبنية على الجداول والوثائق المتوفرة. اتصل بالصيدلية أو تحقق محلياً قبل التنقل، خصوصاً في الحراسة الليلية.', tabToday:'هذا الأسبوع', tabHolidays:'حراسة الأعياد',holidayDescription:'البرنامج الاستثنائي للمناسبات والعطل الرسمية لسنة 2026',holidayWarning:'التواريخ الدينية قابلة للتغيير، وقد تتغير الحراسة إذا وافقت العطلة نهاية الأسبوع. اتصل قبل التنقل.',holidayNextUpdate:'هذه لائحة حراسة الأعياد لسنة 2026. سنقوم بتحديثها مع بداية سنة 2027.',regularHoliday:'الحراسة الأسبوعية المعتادة',tabNight:'الحراسة الليلية', tabMap:'الخريطة', tabInfo:'معلومات', weekTitle:'الصيدليات المبرمجة للحراسة', weekSubtitle:'الحراسة الأسبوعية الرسمية', weekRange:'من 26 أكتوبر 2026 إلى 1 نونبر 2026', nightTitle:'برنامج الحراسة الليلية', nightSubtitle:'من 21:00 ليلاً إلى 09:00 صباحاً', nightRange:'من الإثنين 2026/10/26 إلى الأحد 2026/11/01', currentWeekOnly:'إظهار الضروري فقط', call:'اتصال', directions:'الاتجاهات', showOnMap:'عرض على الخريطة', viewOnMap:'عرض على الخريطة', searchHidden:'ابحث عن صيدلية عند الحاجة', searchPlaceholder:'ابحث بالاسم أو الهاتف', mapTitle:'خريطة الصيدلية', mapSubtitle:'لا نعرض كل الصيدليات علناً الآن. استعمل البحث أو اعرض صيدليات الحراسة الحالية فقط.', searchResults:'نتائج البحث', hiddenNote:'إخفاء جزء من الدليل حالياً لحماية البيانات وتبسيط التجربة.', verified:'موقع مؤكد', unverified:'موقع غير مؤكد', confirmBefore:'تحقق من الوجهة قبل الانطلاق', extra:'تفاصيل إضافية', source:'المصدر', feedbackQ:'هل المعلومات مفيدة؟', yes:'نعم', report:'إبلاغ', ownerPolicyTitle:'سياسة التعديل', ownerPolicyBody:'لا نتيح التعديل العام للبيانات. إذا كانت هناك ملاحظة أو تصحيح، تواصل معنا. تعديل بيانات الصيدلية أو اعتماد الموقع يتم فقط بعد مراجعتنا، وبموافقة مناسبة من صاحب الصيدلية عند الحاجة.', infoTitle:'ما الذي يظهر الآن؟', infoBody:'نعرض الآن فقط صيدليات الحراسة الحالية وبعض المعلومات الأساسية. بقية الدليل لا يظهر افتراضياً لتقليل الفوضى والحد من السحب الآلي.', weekGuardLabel:'حراسة أسبوعية', nightGuardLabel:'حراسة ليلية', tonight:'حراسة الليلة', openDirections:'افتح الملاحة', chooseNav:'اختر تطبيق الملاحة', useMyLocation:'استخدم موقعي', startPoint:'نقطة الانطلاق', startPlaceholder:'موقعي الحالي أو اكتب عنوان البداية', showRoute:'عرض المسار', showPlace:'عرض الصيدلية فقط', routeHelp:'تظهر المعاينة داخل التطبيق. ويمكنك فتح Google Maps أو Waze أو Apple Maps عند الحاجة.', startNavInGoogle:'بدء الملاحة في Google Maps', modalWarn:'موقع هذه الصيدلية غير مؤكد بشكل نهائي. راجع الوجهة قبل الانطلاق.', contact:'تواصل معنا', copyContact:'نسخ البريد', copied:'تم نسخ البريد', footerText:'تطبيق محلي مستقل لخنيفرة. نركز على الحاجات الأساسية: معرفة الصيدلية، الاتصال، والاتجاهات.', footerSource:'المصادر: الجداول المرفوعة من المستخدم + تحديثات يدوية مع مراجعة قبل النشر. آخر دورة معروضة: 2026', reportMsg:'إذا كانت لديك ملاحظة أو كنت صاحب صيدلية وتريد تصحيحاً، راسلنا.', noResults:'لا توجد نتائج مطابقة حالياً.',feedbackTitle:'ملاحظات واقتراحات',feedbackIntro:'أرسل ملاحظة عن صيدلية، أو اقترح تصحيحاً للمراجعة فقط.',feedbackPharmacyLabel:'الصيدلية',feedbackTypeLabel:'نوع الملاحظة',feedbackMessageLabel:'اكتب ملاحظتك',feedbackPrivacy:'ستفتح رسالة في تطبيق بريدك. لا تُنشر الملاحظات ولا تعدّل بيانات الصيدلية تلقائياً. لا ترسل معلومات صحية شخصية.',feedbackSend:'إرسال عبر البريد',feedbackOpen:'أرسل ملاحظة',feedbackTypes:['معلومة غير صحيحة','تجربة إيجابية','اقتراح آخر'],feedbackPlaceholder:'ما الذي لاحظته؟',footerNote:'هذه البيانات تخص 2026 وقد تتغير. سنقوم بتحديث اللوائح مع بداية 2027. كل التغييرات والملاحظات لا تُنشر إلا بعد مراجعة الإدارة.',nightBadge:'🌙 الحراسة الليلية',nightHours:'21:00 إلى 09:00'},
@@ -264,7 +261,7 @@ function setLang(next){ lang = next; localStorage.setItem('kp_lang', lang); docu
   function isoToday(){ const d = new Date(); const y = d.getFullYear(); const m = String(d.getMonth()+1).padStart(2,'0'); const day = String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
   function formatDate(dateStr){ const date = new Date(dateStr + 'T12:00:00'); return date.toLocaleDateString(lang==='ar'?'ar-MA':lang==='fr'?'fr-FR':'en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'}); }
   function getTodayNight(){ return nightSchedule[0] || null; }
-  function pharmacyQuery(p){ return `${p.nameAr || p.name}, ${p.address}, Khénifra, Morocco`; }
+  function pharmacyQuery(p){ return `${p.name || p.nameAr}, ${p.address || ''}, Khénifra, Morocco`; }
   function phoneHref(p){ return `tel:${(p.phone||'').replace(/\s+/g,'')}`; }
   function mapEmbedPlace(query){ if(MAPS_KEY) return `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(MAPS_KEY)}&q=${encodeURIComponent(query)}`; return `about:blank`; }
   function mapEmbedDirections(origin, destination){ if(MAPS_KEY) return `https://www.google.com/maps/embed/v1/directions?key=${encodeURIComponent(MAPS_KEY)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&mode=driving`; return 'about:blank'; }
@@ -280,15 +277,15 @@ function setLang(next){ lang = next; localStorage.setItem('kp_lang', lang); docu
   function showRoute(){ if(!modalPharmacy) return; const origin = (els.startInput.value || 'Khénifra, Morocco').trim(); const destination = pharmacyQuery(modalPharmacy); const urls = navUrls(modalPharmacy, origin); els.openGoogle.href = urls.google; els.openWaze.href = urls.waze; els.openApple.href = urls.apple; els.routeFrame.src = mapEmbedDirections(origin, destination); }
   function showPlace(){ if(!modalPharmacy) return; els.routeFrame.src = mapEmbedPlace(pharmacyQuery(modalPharmacy)); }
   function badge(p){ return `<span class="badge ${p.verified ? 'ok':'warn'}">${p.verified ? t('verified') : t('unverified')}</span>`; }
-  function actionButtons(p){ return `<div class="actions"><a class="btn primary" href="${phoneHref(p)}">☎ ${t('call')}</a><button class="btn soft" data-action="directions" data-id="${escapeHtml(p.id || p.name)}">🧭 ${t('directions')}</button></div>`; }
+  function actionButtons(p){ return `<div class="actions">${p.phone?`<a class="btn primary" href="${phoneHref(p)}">☎ ${t('call')}</a>`:''}<button class="btn soft" data-action="directions" data-id="${escapeHtml(p.id || p.name)}">🧭 ${t('directions')}</button></div>`; }
   function smallActions(p){ return `<div class="share-line"><button class="pill" data-action="share-pharmacy" data-id="${escapeHtml(p.id || p.name)}">↗ ${eText('sharePharmacy')}</button></div>`+`<div class="mini-actions"><button class="btn soft" data-action="viewmap" data-id="${escapeHtml(p.id || p.name)}">🗺 ${t('viewOnMap')}</button><button class="btn" data-action="directions" data-id="${escapeHtml(p.id || p.name)}">🧭 ${t('openDirections')}</button>${p.phone?`<a class="btn primary" href="${phoneHref(p)}">☎ ${t('call')}</a>`:''}</div>`; }
   function shareButton(p){return `<div class="share-line"><button class="pill" data-action="share-pharmacy" data-id="${escapeHtml(p.id || p.name)}">↗ ${eText('sharePharmacy')}</button></div>`;}
   function extraDetails(p){ return shareButton(p)+`<details><summary>${t('extra')}</summary><div class="small"><b>${t('source')}:</b> ${escapeHtml(p.source || '-')}<br>${escapeHtml(p.address || '')}<br>${!p.verified ? '⚠ '+t('confirmBefore'):''}</div></details>`; }
   function feedbackRow(p){ return `<div class="feedback"><div class="small">${t('feedbackQ')}</div><div class="choices"><button class="pill" data-action="helpful">${t('yes')}</button><button class="pill" data-action="feedback" data-id="${escapeHtml(p.id || p.name)}">${t('report')}</button></div></div>`; }
-  function renderToday(){ const cards = (isoToday()>=currentWeek.start && isoToday()<=currentWeek.end ? weeklyPharmacies : []).map(p=>`<article class="card"><div class="card-top"><div><div class="badge ok">${t('weekGuardLabel')}</div><div class="name">${escapeHtml(p.nameAr || p.name)}</div></div>${badge(p)}</div><div class="pharmacy">${escapeHtml(p.nameAr || p.name)}</div><div class="address">${escapeHtml(p.address)}</div><div class="phone">☎ ${escapeHtml(p.phone)}</div>${actionButtons(p)}${feedbackRow(p)}${extraDetails(p)}</article>`).join(''); const night = getTodayNight(); const nightCard = night ? `<article class="card night-card"><div class="night-label">${t('nightBadge')}</div><div class="card-top"><div><div class="badge ok">${t('tonight')}</div><div class="name">${escapeHtml(night.nameAr || night.name)}</div></div>${badge(night)}</div><div class="pharmacy">${escapeHtml(night.nameAr || night.name)}</div><div class="address">${formatDate(night.date)}<br>${escapeHtml(night.address)}</div><div class="phone">☎ ${escapeHtml(night.phone)}</div>${actionButtons(night)}${feedbackRow(night)}${extraDetails(night)}</article>` : '';
-    const expired=isoToday()>currentWeek.end;
+  function renderToday(){ const cards = (currentWeek.start && isoToday()>=currentWeek.start && isoToday()<=currentWeek.end ? weeklyPharmacies : []).map(p=>`<article class="card"><div class="card-top"><div><div class="badge ok">${t('weekGuardLabel')}</div><div class="name">${escapeHtml(p.nameAr || p.name)}</div></div>${badge(p)}</div><div class="pharmacy">${escapeHtml(p.nameAr || p.name)}</div><div class="address">${escapeHtml(p.address)}</div>${p.phone?`<div class="phone">☎ ${escapeHtml(p.phone)}</div>`:''}${actionButtons(p)}${feedbackRow(p)}${extraDetails(p)}</article>`).join(''); const night = getTodayNight(); const nightCard = night ? `<article class="card night-card"><div class="night-label">${t('nightBadge')}</div><div class="card-top"><div><div class="badge ok">${t('tonight')}</div><div class="name">${escapeHtml(night.nameAr || night.name)}</div></div>${badge(night)}</div><div class="pharmacy">${escapeHtml(night.nameAr || night.name)}</div><div class="address">${formatDate(night.date)}<br>${escapeHtml(night.address)}</div><div class="phone">☎ ${escapeHtml(night.phone)}</div>${actionButtons(night)}${feedbackRow(night)}${extraDetails(night)}</article>` : '';
+    const expired=!currentWeek.start || isoToday()>currentWeek.end;
     const emptyMessage=lang==='ar' ? 'انتهى جدول الحراسة الأسبوعية المنشور. سنعرض الصيدليات الجديدة بعد التأكد من البرنامج المحدث. يرجى الاتصال بالصيدلية أو التحقق محلياً قبل التنقل.' : lang==='fr' ? 'Le planning hebdomadaire publié est terminé. Les nouvelles pharmacies seront affichées après vérification du planning actualisé. Confirmez localement avant de vous déplacer.' : 'The published weekly duty schedule has ended. New duty pharmacies will appear after the updated schedule is verified. Please check locally before travelling.';
-    const weekLabel=expired ? (lang==='ar' ? 'تحديث الحراسة الأسبوعية مطلوب' : lang==='fr' ? 'Mise à jour de la garde hebdomadaire nécessaire' : 'Weekly duty update needed') : t('weekSubtitle')+' · '+t('weekRange');
+    const weekLabel=expired ? (lang==='ar' ? 'تحديث الحراسة الأسبوعية مطلوب' : lang==='fr' ? 'Mise à jour de la garde hebdomadaire nécessaire' : 'Weekly duty update needed') : t('weekSubtitle')+' · '+currentWeek.start+' – '+currentWeek.end;
     const emptyCard= !cards && !nightCard ? `<div class="empty" role="status">${emptyMessage}</div>` : '';
     els.today.innerHTML = `<div class="panel"><div class="section-title"><div><h2>${t('weekTitle')}</h2><p>${weekLabel}</p></div><span class="badge">${t('currentWeekOnly')}</span></div><div class="cards">${cards}${nightCard}${emptyCard}</div></div>`;
   }
@@ -314,7 +311,7 @@ function setLang(next){ lang = next; localStorage.setItem('kp_lang', lang); docu
   function renderMap(){
     const q = selectedMapPharmacy ? pharmacyQuery(selectedMapPharmacy) : 'Khénifra, Morocco';
     const frameSrc = MAPS_KEY ? mapEmbedPlace(q) : 'about:blank';
-    const currentList = [...(isoToday()>=currentWeek.start && isoToday()<=currentWeek.end ? weeklyPharmacies : []), ...(getTodayNight() ? [getTodayNight()] : [])];
+    const currentList = [...(currentWeek.start && isoToday()>=currentWeek.start && isoToday()<=currentWeek.end ? weeklyPharmacies : []), ...(getTodayNight() ? [getTodayNight()] : [])];
     const cards = currentList.map(p=>`<article class="mini-card"><div class="mini-title"><b>${escapeHtml(p.nameAr || p.name)}</b>${badge(p)}</div><div class="small">${escapeHtml(p.address || '')}</div>${smallActions(p)}</article>`).join('');
     els.map.innerHTML = `<div class="panel"><div class="section-title"><div><h2>${t('mapTitle')}</h2><p>${t('mapSubtitle')}</p></div></div><div class="map-shell"><div class="map-card"><iframe class="map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="${frameSrc}"></iframe></div><div class="list-stack">${cards}</div></div></div>`;
   }
@@ -376,6 +373,22 @@ function setLang(next){ lang = next; localStorage.setItem('kp_lang', lang); docu
   els.lang.addEventListener('change', e=> setLang(e.target.value));
   els.closeModal.addEventListener('click', closeModal); els.navModal.addEventListener('click', e=>{ if(e.target===els.navModal) closeModal(); }); els.useMyLocation.addEventListener('click', chooseMyLocation); els.showRoute.addEventListener('click', showRoute); els.showPlace.addEventListener('click', showPlace); els.copyContact.addEventListener('click', async ()=>{ try{ await navigator.clipboard.writeText(email); const old=els.copyContact.textContent; els.copyContact.textContent=t('copied'); setTimeout(()=>els.copyContact.textContent=t('copyContact'),1200);}catch(e){window.prompt('Copy email', email);} });
 
+  async function loadWeek(){
+    try {
+      const res=await fetch('/api/week/current',{cache:'no-store'});
+      if(!res.ok) throw new Error('Weekly schedule unavailable');
+      const data=await res.json();
+      const week=data.week;
+      currentWeek=week?{start:week.start,end:week.end}:{start:'',end:''};
+      weeklyPharmacies=week?week.pharmacies:[];
+      allKnown=[...weeklyPharmacies];
+      selectedMapPharmacy=weeklyPharmacies[0]||null;
+      renderAll();
+    } catch(err){
+      currentWeek={start:'',end:''}; weeklyPharmacies=[];allKnown=[];selectedMapPharmacy=null;
+      renderAll();console.warn('Weekly schedule unavailable');
+    }
+  }
   async function loadNight(){
     try {
       const res = await fetch('/api/night/current', {cache:'no-store'});
@@ -405,6 +418,7 @@ function setLang(next){ lang = next; localStorage.setItem('kp_lang', lang); docu
   window.setTimeout(hideSplash, 2600);
 
 setLang(lang);
+  loadWeek().then(handleSharedLink);
   loadNight().then?.(handleSharedLink);
   handleSharedLink();
 
