@@ -32,6 +32,12 @@ def get_duty(now=None):
     place_id = entry.get("placeId", "") if isinstance(entry, dict) else ""
     if not row.get("nameAr") or not row.get("nameFr"):
         raise RuntimeError("Incomplete night rotation entry")
+    # A published directory associates this number with a different pharmacy.
+    # Do not expose an unconfirmed phone number as a direct call action.
+    phone_disputed = (
+        row.get("nameAr") == "صيدلية المسيرة الخضراء"
+        and "".join(ch for ch in row.get("phone", "") if ch.isdigit()) == "0661649124"
+    )
     return {
         "placeId": place_id,
         "locationVerified": bool(place_id),
@@ -40,7 +46,8 @@ def get_duty(now=None):
         "name": row["nameFr"],
         "nameAr": row["nameAr"],
         "nameFr": row["nameFr"],
-        "phone": row.get("phone", ""),
+        "phone": "" if phone_disputed else row.get("phone", ""),
+        "phoneNeedsReview": phone_disputed,
         "address": row.get("address", ""),
         "startTime": "21:00",
         "startTimeMayVary": True,
@@ -48,7 +55,7 @@ def get_duty(now=None):
         "verified": False,
         "upcoming": local_now.date() == duty_date and local_now.time() < time(21, 0),
         "source": "دورة الحراسة الليلية من 40 صيدلية؛ التوقيت المرجعي 21:00-09:00 وقد تبدأ بعض المناوبات في 21:30",
-        "locationNeedsReview": bool(row.get("locationNeedsReview", False)),
+        "locationNeedsReview": phone_disputed or bool(row.get("locationNeedsReview", False)),
         "scheduleBasedOnRotation": True
     }
 
