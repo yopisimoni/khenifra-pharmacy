@@ -31,4 +31,7 @@ const privacyScript=[...privacy.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/scrip
 assert.ok(privacyScript, 'Privacy page missing script');
 new vm.Script(privacyScript[1], {filename:'privacy-inline.js'});
 assert.ok(text.includes('href="/privacy.html"'), 'Footer must link to public privacy page');
+assert.ok(text.includes("renderMap(); bindActions();"), 'Map controls must be rebound after rerender');
+assert.ok(text.includes('${actionButtons(item)}${feedbackRow(item)}'), 'Night shift needs a report error action');
+assert.ok(text.includes('${smallActions(p)}${feedbackRow(p)}'), 'Map entries need a report error action');
 console.log('PASS: HTML JS, three-language key parity, privacy page, Morocco timezone, no embedded map key');
