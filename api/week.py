@@ -58,7 +58,12 @@ def current_week_pharmacy(key, index, lookup):
     # Original pharmacist duty source establishes the weekly appointment;
     # the night-order directory supplies contact details, not weekly hours.
     name_fr = data.get("nameFr") or "Pharmacie " + key.title()
+    approved = json.loads(os.environ.get("VERIFIED_PHARMACY_PLACES_JSON", "{}"))
+    candidate = approved.get(WEEK_TO_NIGHT.get(key, ""), {})
+    place_id = candidate.get("placeId", "") if isinstance(candidate, dict) else ""
     return {
+        "placeId": place_id,
+        "locationVerified": bool(place_id),
         "id": "week-" + str(index),
         "name": key,
         "nameAr": NAMES.get(key, key),
@@ -66,7 +71,6 @@ def current_week_pharmacy(key, index, lookup):
         "phone": data.get("phone", ""),
         "address": data.get("address", ""),
         "verified": False,
-        "locationVerified": False,
         "source": "CRPOS weekly schedule; contact details from supplied local pharmacy directory",
     }
 
