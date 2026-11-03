@@ -8,3 +8,9 @@ __pycache__/
 node_modules/
 *.csv
 private*
+
+# Private map verification and approved location data
+*approved-places*.json
+*location_review*.csv
+.pharmacy-private/
+location-review-private/
