@@ -42,11 +42,12 @@ def get_duty(now=None):
         "nameFr": row["nameFr"],
         "phone": row.get("phone", ""),
         "address": row.get("address", ""),
-        "startTime": "يُرجى التأكيد",
+        "startTime": "21:00",
+        "startTimeMayVary": True,
         "endTime": "09:00",
         "verified": False,
-        "upcoming": local_now.date() == duty_date and local_now.time() < time(21, 30),
-        "source": "دورة الحراسة الليلية المكونة من 40 صيدلية - تحتاج تأكيد التوقيت",
+        "upcoming": local_now.date() == duty_date and local_now.time() < time(21, 0),
+        "source": "دورة الحراسة الليلية من 40 صيدلية؛ التوقيت المرجعي 21:00-09:00 وقد تبدأ بعض المناوبات في 21:30",
         "locationNeedsReview": bool(row.get("locationNeedsReview", False)),
         "scheduleBasedOnRotation": True
     }
