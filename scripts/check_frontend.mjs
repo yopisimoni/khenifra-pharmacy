@@ -14,7 +14,7 @@ for (const [name, block] of [['core', tr], ['legal', extras]]) {
   const ar = block.slice(block.indexOf('ar:{'), block.indexOf('fr:{'));
   const fr = block.slice(block.indexOf('fr:{'), block.indexOf('en:{'));
   const en = block.slice(block.indexOf('en:{'));
-  const keys = str => [...str.matchAll(/(?:^|,)\s*([A-Za-z][A-Za-z0-9_]*):/g)].map(m => m[1]);
+  const keys = str => [...str.matchAll(/(?:^|,)\s*([A-Za-z][A-Za-z0-9_]*):/g)].map(m => m[1]).filter(k => !['ar','fr','en'].includes(k));
   const expected = keys(ar);
   for (const [lang, value] of [['fr', fr], ['en', en]]) {
     assert.deepEqual(keys(value).sort(), expected.slice().sort(), name + ' translation mismatch: ' + lang);
