@@ -23,4 +23,12 @@ for (const [name, block] of [['core', tr], ['legal', extras]]) {
 assert.ok(text.includes("timeZone:'Africa/Casablanca'"), 'Frontend must use Morocco local date');
 assert.ok(text.includes("visibilitychange"), 'Returning from background must refresh duty');
 assert.ok(!/AIza[0-9A-Za-z_-]{30,}/.test(text), 'Do not commit a Google browser API key');
-console.log('PASS: HTML JavaScript parses, translations consistent, Morocco date, no embedded Google key');
+const privacy = fs.readFileSync('privacy.html','utf8');
+assert.ok(privacy.includes('id="policy"'), 'Privacy document must contain readable policy');
+assert.ok(privacy.includes('langSelect.addEventListener'), 'Privacy language selector missing');
+assert.ok(privacy.includes('Géolocalisation') && privacy.includes('معلومات الموقع') && privacy.includes('Location'), 'Privacy translations incomplete');
+const privacyScript=[...privacy.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].at(-1);
+assert.ok(privacyScript, 'Privacy page missing script');
+new vm.Script(privacyScript[1], {filename:'privacy-inline.js'});
+assert.ok(text.includes('href="/privacy.html"'), 'Footer must link to public privacy page');
+console.log('PASS: HTML JS, three-language key parity, privacy page, Morocco timezone, no embedded map key');
