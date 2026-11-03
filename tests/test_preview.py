@@ -1,25 +1,54 @@
-import sys, unittest, base64, os
+import json
+import os
+import sys
+import unittest
 from datetime import datetime
-from zoneinfo import ZoneInfo
 from pathlib import Path
-sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'api'))
+from unittest.mock import patch
+from zoneinfo import ZoneInfo
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "api"))
 from night import get_duty
+
+TZ = ZoneInfo("Africa/Casablanca")
+
+def sample_rotation():
+    return [
+        {
+            "nameAr": ("صيدلية المسيرة الخضراء" if i == 0 else
+                       "صيدلية النجاح" if i == 39 else f"صيدلية {i + 1}"),
+            "nameFr": f"Pharmacie {i + 1}",
+            "phone": "0535000000",
+            "address": "خنيفرة"
+        }
+        for i in range(40)
+    ]
+
 class PreviewTests(unittest.TestCase):
- def test_without_schedule(self):
-  old=os.environ.pop('NIGHT_SCHEDULE_CSV_B64',None)
-  try:self.assertIsNone(get_duty())
-  finally:
-   if old is not None:os.environ['NIGHT_SCHEDULE_CSV_B64']=old
- def test_private_schedule(self):
-  sample='التاريخ,اسم الصيدلية,الهاتف,العنوان,بداية الحراسة,نهاية الحراسة (صباح اليوم التالي)\n2026-10-29,صيدلية الفتح,0535382552,خنيفرة,21:00,09:00\n'
-  old=os.environ.get('NIGHT_SCHEDULE_CSV_B64')
-  os.environ['NIGHT_SCHEDULE_CSV_B64']=base64.b64encode(sample.encode()).decode()
-  try:
-   p=get_duty(datetime(2026,10,29,23,0,tzinfo=ZoneInfo('Africa/Casablanca')))
-   self.assertEqual(p['nameAr'],'صيدلية الفتح')
-   self.assertEqual(len(p),11)
-   self.assertIsNone(get_duty(datetime(2026,12,1,23,0,tzinfo=ZoneInfo('Africa/Casablanca'))))
-  finally:
-   if old is None:os.environ.pop('NIGHT_SCHEDULE_CSV_B64',None)
-   else:os.environ['NIGHT_SCHEDULE_CSV_B64']=old
-if __name__=='__main__':unittest.main()
+    def test_without_rotation(self):
+        with patch.dict(os.environ, {"NIGHT_ROTATION_JSON": ""}):
+            self.assertIsNone(get_duty(datetime(2026, 11, 3, 22, tzinfo=TZ)))
+
+    def test_night_schedule_and_seasonal_disclaimer(self):
+        with patch.dict(os.environ, {"NIGHT_ROTATION_JSON": json.dumps(sample_rotation())}):
+            item = get_duty(datetime(2026, 11, 3, 22, tzinfo=TZ))
+            self.assertEqual(item["nameAr"], "صيدلية المسيرة الخضراء")
+            self.assertEqual(item["startTime"], "21:00")
+            self.assertEqual(item["endTime"], "09:00")
+            self.assertTrue(item["startTimeMayVary"])
+            self.assertTrue(item["scheduleBasedOnRotation"])
+            self.assertFalse(item["upcoming"])
+
+    def test_before_nine_shows_previous_night(self):
+        with patch.dict(os.environ, {"NIGHT_ROTATION_JSON": json.dumps(sample_rotation())}):
+            item = get_duty(datetime(2026, 11, 4, 8, 59, tzinfo=TZ))
+            self.assertEqual(item["date"], "2026-11-03")
+            self.assertEqual(item["nameAr"], "صيدلية المسيرة الخضراء")
+
+    def test_cycle_restarts_at_forty_days(self):
+        with patch.dict(os.environ, {"NIGHT_ROTATION_JSON": json.dumps(sample_rotation())}):
+            self.assertEqual(get_duty(datetime(2026, 12, 12, 22, tzinfo=TZ))["nameAr"], "صيدلية النجاح")
+            self.assertEqual(get_duty(datetime(2026, 12, 13, 22, tzinfo=TZ))["nameAr"], "صيدلية المسيرة الخضراء")
+
+if __name__ == "__main__":
+    unittest.main()
