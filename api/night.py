@@ -35,7 +35,7 @@ def get_duty(now=None):
     return {
         "placeId": place_id,
         "locationVerified": bool(place_id),
-        "id": "night-current",
+        "id": "night-" + str(index + 1).zfill(2),
         "date": duty_date.isoformat(),
         "name": row["nameFr"],
         "nameAr": row["nameAr"],
