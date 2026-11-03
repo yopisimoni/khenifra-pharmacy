@@ -71,7 +71,7 @@
     @keyframes splashLoad{from{width:0}to{width:100%}}
     @media (max-width:640px){.splash-card{padding:30px 20px 22px;border-radius:26px}.splash-orb{width:80px;height:80px;font-size:34px}.splash-cross{width:40px;height:40px;font-size:20px}.splash-kicker{letter-spacing:.12em}}
 
-    .hero{padding-top:54px}.topbar{position:relative;top:auto}@media(max-width:720px){.hero{padding-top:28px}}\n</style>
+    .hero{padding-top:54px}.topbar{position:relative;top:auto}@media(max-width:720px){.hero{padding-top:28px}}\n.name-fr{font-size:16px;font-weight:600;line-height:1.4;opacity:.85;margin-top:6px;direction:ltr;unicode-bidi:isolate}.night-card .name-fr{color:#d6e8fc}</style>
 </head>
 <body class="splash-open">
 <div class="splash" id="splash" aria-label="Amara Solution AI intro">
@@ -291,7 +291,7 @@ function setLang(next){ lang = next; localStorage.setItem('kp_lang', lang); docu
   }
   function renderNight(){
     const item = getTodayNight();
-    const items = item ? `<article class="card night-card"><div class="night-label">${t('nightBadge')}</div><div class="card-top"><div><div class="badge ok">${formatDate(item.date)}</div><div class="name">${escapeHtml(item.nameAr)}</div></div>${badge(item)}</div><div class="pharmacy">${escapeHtml(item.nameAr)}</div><div class="address">${escapeHtml(item.address)}<br>⏰ ${escapeHtml(item.startTime)} – ${escapeHtml(item.endTime)}</div><div class="phone">☎ ${escapeHtml(item.phone)}</div>${actionButtons(item)}${extraDetails(item)}</article>` : `<div class="empty">${lang==='ar'?'لم نتوصل بعد بجدول الحراسة الليلية المحدّث بعد 1 نونبر 2026. هذا لا يعني عدم وجود صيدلية مناوبة. يُرجى التحقق محلياً قبل التنقل.':lang==='fr'?'Le planning des gardes de nuit après le 1er novembre 2026 n’est pas encore disponible ici. Cela ne signifie pas qu’aucune pharmacie est de garde. Vérifiez localement avant de vous déplacer.':'The night-duty schedule after 1 November 2026 is not yet available here. This does not mean no pharmacy is on duty. Please verify locally before travelling.'}</div>`;
+    const items = item ? `<article class="card night-card"><div class="night-label">${t('nightBadge')}</div><div class="card-top"><div><div class="badge ok">${formatDate(item.date)}</div><div class="name">${escapeHtml(item.nameAr)}</div></div>${badge(item)}</div><div class="pharmacy">${escapeHtml(item.nameAr)}<div class="name-fr" lang="fr">${escapeHtml(item.nameFr || item.name || "")}</div></div><div class="address">${escapeHtml(item.address)}<br>⏰ ${escapeHtml(item.startTime)} – ${escapeHtml(item.endTime)}</div><div class="phone">☎ ${escapeHtml(item.phone)}</div>${actionButtons(item)}${extraDetails(item)}</article>` : `<div class="empty">${lang==='ar'?'لم نتوصل بعد بجدول الحراسة الليلية المحدّث بعد 1 نونبر 2026. هذا لا يعني عدم وجود صيدلية مناوبة. يُرجى التحقق محلياً قبل التنقل.':lang==='fr'?'Le planning des gardes de nuit après le 1er novembre 2026 n’est pas encore disponible ici. Cela ne signifie pas qu’aucune pharmacie est de garde. Vérifiez localement avant de vous déplacer.':'The night-duty schedule after 1 November 2026 is not yet available here. This does not mean no pharmacy is on duty. Please verify locally before travelling.'}</div>`;
     els.night.innerHTML = `<div class="panel"><div class="section-title"><div><h2>${t('nightTitle')}</h2><p>${item ? formatDate(item.date) + ' · ' + item.startTime + ' – ' + item.endTime : t('noticeBody')}</p></div><span class="badge">${t('nightBadge')}</span></div><div class="cards">${items}</div></div>`;
   }
   function renderHolidays(){
