@@ -39,6 +39,15 @@ class PreviewTests(unittest.TestCase):
             self.assertTrue(item["scheduleBasedOnRotation"])
             self.assertFalse(item["upcoming"])
 
+    def test_disputed_pharmacy_phone_is_not_shown(self):
+        data = sample_rotation()
+        data[0]["phone"] = "0661649124"
+        with patch.dict(os.environ, {"NIGHT_ROTATION_JSON": json.dumps(data)}):
+            item = get_duty(datetime(2026, 11, 3, 22, tzinfo=TZ))
+            self.assertEqual(item["phone"], "")
+            self.assertTrue(item["phoneNeedsReview"])
+            self.assertTrue(item["locationNeedsReview"])
+
     def test_before_nine_shows_previous_night(self):
         with patch.dict(os.environ, {"NIGHT_ROTATION_JSON": json.dumps(sample_rotation())}):
             item = get_duty(datetime(2026, 11, 4, 8, 59, tzinfo=TZ))
