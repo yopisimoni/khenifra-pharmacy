@@ -3,7 +3,7 @@ import vm from 'node:vm';
 import assert from 'node:assert/strict';
 
 const text = fs.readFileSync('index.html', 'utf8');
-const scripts = [...text.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/gi)];
+const scripts = [...text.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)];
 assert.ok(scripts.length, 'Missing inline application JavaScript');
 new vm.Script(scripts.at(-1)[1], { filename: 'index-inline.js' });
 
@@ -14,7 +14,7 @@ for (const [name, block] of [['core', tr], ['legal', extras]]) {
   const ar = block.slice(block.indexOf('ar:{'), block.indexOf('fr:{'));
   const fr = block.slice(block.indexOf('fr:{'), block.indexOf('en:{'));
   const en = block.slice(block.indexOf('en:{'));
-  const keys = str => [...str.matchAll(/(?:^|,)\\s*([A-Za-z][A-Za-z0-9_]*):/g)].map(m => m[1]);
+  const keys = str => [...str.matchAll(/(?:^|,)\s*([A-Za-z][A-Za-z0-9_]*):/g)].map(m => m[1]);
   const expected = keys(ar);
   for (const [lang, value] of [['fr', fr], ['en', en]]) {
     assert.deepEqual(keys(value).sort(), expected.slice().sort(), name + ' translation mismatch: ' + lang);
