@@ -266,7 +266,13 @@ function setLang(next){ lang = next; localStorage.setItem('kp_lang', lang); docu
   function mapEmbedPlace(query){ if(MAPS_KEY) return `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(MAPS_KEY)}&q=${encodeURIComponent(query)}`; return `about:blank`; }
   function mapEmbedDirections(origin, destination){ if(MAPS_KEY) return `https://www.google.com/maps/embed/v1/directions?key=${encodeURIComponent(MAPS_KEY)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&mode=driving`; return 'about:blank'; }
   function navUrls(p, origin=''){ const query=pharmacyQuery(p);
-    const exactPin=p.locationVerified===true && Number.isFinite(Number(p.lat)) && Number.isFinite(Number(p.lng));
+    const approvedPlaceId = p.locationVerified === true && /^[A-Za-z0-9_-]{10,160}$/.test(p.placeId || '') ? p.placeId : '';
+    const exactPin=p.locationVerified===true && p.lat != null && p.lng != null && Number.isFinite(Number(p.lat)) && Number.isFinite(Number(p.lng));
+    if(approvedPlaceId) return {
+      google: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(query)}&destination_place_id=${encodeURIComponent(approvedPlaceId)}&travelmode=driving`,
+      waze: `https://www.waze.com/ul?q=${encodeURIComponent(query)}`,
+      apple: `https://maps.apple.com/?q=${encodeURIComponent(query)}`
+    };
     if(!exactPin) return {
       google: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`,
       waze: `https://www.waze.com/ul?q=${encodeURIComponent(query)}`,
