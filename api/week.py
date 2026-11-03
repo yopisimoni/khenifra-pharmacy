@@ -32,17 +32,60 @@ NAMES = {
     "CHAAB": "صيدلية الشعب",
     "HEY EL FILAHI": "صيدلية الحي الفلاحي",
 }
+WEEK_TO_NIGHT = {
+    "JABOR": "صيدلية جبور",
+    "TOUHAMI": "صيدلية التهامي",
+    "AMALOU": "صيدلية أمالو",
+    "NAJAH": "صيدلية النجاح",
+    "HAMRIA": "صيدلية حمرية",
+    "ANASR": "صيدلية النصر",
+    "GHRISSI": "صيدلية الغريسي",
+    "NOUVELLE": "الصيدلية الجديدة",
+    "KARAWIA": "صيدلية القروية",
+    "IBN ROCHD": "صيدلية ابن رشد",
+    "TAZART IAARADAN": "صيدلية نزارت إعراضن",
+    "EL OMRANE": "صيدلية العمران",
+    "AJDIR": "صيدلية أجدير",
+    "AGUELMAM": "صيدلية أكلمام",
+    "ZERKTOUNI": "صيدلية الزرقطوني",
+    "SAHAT DE COURSE": "صيدلية ساحة الكورس",
+    "HOPITALE": "صيدلية المستشفى",
+    "CHAAB": "صيدلية الشعب",
+    "HEY EL FILAHI": "صيدلية الحي الفلاحي",
+}
+def current_week_pharmacy(key, index, lookup):
+    data = lookup.get(WEEK_TO_NIGHT.get(key, ""), {})
+    # Original pharmacist duty source establishes the weekly appointment;
+    # the night-order directory supplies contact details, not weekly hours.
+    name_fr = data.get("nameFr") or "Pharmacie " + key.title()
+    return {
+        "id": "week-" + str(index),
+        "name": key,
+        "nameAr": NAMES.get(key, key),
+        "nameFr": name_fr,
+        "phone": data.get("phone", ""),
+        "address": data.get("address", ""),
+        "verified": False,
+        "locationVerified": False,
+        "source": "CRPOS weekly schedule; contact details from supplied local pharmacy directory",
+    }
+
 def get_current_week(now=None):
     now = now or datetime.now(ZoneInfo("Africa/Casablanca"))
     date = now.date().isoformat()
     raw = os.environ.get("WEEKLY_ROTATION_JSON", "[]")
+    try:
+        entries = json.loads(os.environ.get("NIGHT_ROTATION_JSON", "[]"))
+        lookup = {entry["nameAr"]: entry for entry in entries if entry.get("nameAr")}
+    except (ValueError, TypeError, KeyError):
+        lookup = {}
     for start, end, first, second in json.loads(raw):
         if start <= date <= end:
             return {
                 "start": start, "end": end,
                 "pharmacies": [
-                    {"id": "week-1", "name": first, "nameAr": NAMES.get(first, first), "phone": "", "address": "", "verified": False, "source": "CRPOS weekly duty schedule"},
-                    {"id": "week-2", "name": second, "nameAr": NAMES.get(second, second), "phone": "", "address": "", "verified": False, "source": "CRPOS weekly duty schedule"}
+                    current_week_pharmacy(first, 1, lookup),
+                    current_week_pharmacy(second, 2, lookup)
                 ]
             }
     return None
