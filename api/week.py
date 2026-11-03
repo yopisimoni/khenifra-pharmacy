@@ -64,7 +64,7 @@ def current_week_pharmacy(key, index, lookup):
     return {
         "placeId": place_id,
         "locationVerified": bool(place_id),
-        "id": "week-" + str(index),
+        "id": "week-" + key.lower().replace(" ", "-"),
         "name": key,
         "nameAr": NAMES.get(key, key),
         "nameFr": name_fr,
