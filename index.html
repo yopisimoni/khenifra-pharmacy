@@ -134,7 +134,7 @@
       <a class="btn soft" id="contactMail" href="#"></a>
       <button class="btn" id="copyContact"></button><button class="btn soft" id="openFeedback"></button>
     </div>
-    <div class="foot-actions"><button class="btn soft" id="aboutLink" type="button">من نحن</button><button class="btn soft" id="privacyLink" type="button">سياسة الخصوصية</button><button class="btn soft" id="contactLink" type="button">اتصل بنا</button></div><div class="footer-note" id="footerNote"></div>
+    <div class="foot-actions"><button class="btn soft" id="aboutLink" type="button">من نحن</button><a class="btn soft" id="privacyLink" href="/privacy.html">سياسة الخصوصية</a><button class="btn soft" id="contactLink" type="button">اتصل بنا</button></div><div class="footer-note" id="footerNote"></div>
   </footer>
 </div>
 
@@ -416,7 +416,7 @@ function setLang(next){ lang = ['ar','fr','en'].includes(next) ? next : 'ar'; tr
   }
   document.getElementById('shareAppBtn').addEventListener('click',()=>shareThing(null));
   document.getElementById('aboutLink').addEventListener('click',()=>openLegal('about'));
-  document.getElementById('privacyLink').addEventListener('click',()=>openLegal('privacy'));
+  
   document.getElementById('contactLink').addEventListener('click',()=>openLegal('contact'));
   document.getElementById('closeLegal').addEventListener('click',()=>{document.getElementById('legalModal').classList.remove('open');});
   document.getElementById('legalModal').addEventListener('click',e=>{if(e.target.id==='legalModal')e.target.classList.remove('open');});
