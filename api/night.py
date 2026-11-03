@@ -27,9 +27,14 @@ def get_duty(now=None):
         raise RuntimeError("Night rotation must contain exactly 40 entries")
     index = (duty_date - ANCHOR).days % CYCLE_LENGTH
     row = records[index]
+    verified = json.loads(os.environ.get("VERIFIED_PHARMACY_PLACES_JSON", "{}"))
+    entry = verified.get(row.get("nameAr", ""), {})
+    place_id = entry.get("placeId", "") if isinstance(entry, dict) else ""
     if not row.get("nameAr") or not row.get("nameFr"):
         raise RuntimeError("Incomplete night rotation entry")
     return {
+        "placeId": place_id,
+        "locationVerified": bool(place_id),
         "id": "night-current",
         "date": duty_date.isoformat(),
         "name": row["nameFr"],
