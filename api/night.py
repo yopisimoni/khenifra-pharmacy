@@ -1,39 +1,63 @@
-import os, base64, csv, io, json
-from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
+import json
+import os
+from datetime import date, datetime, time, timedelta
 from http.server import BaseHTTPRequestHandler
+from zoneinfo import ZoneInfo
+
+CASABLANCA = ZoneInfo("Africa/Casablanca")
+ANCHOR = date(2026, 11, 3)
+CYCLE_LENGTH = 40
 
 def get_duty(now=None):
-    now = now or datetime.now(ZoneInfo('Africa/Casablanca'))
-    encoded = os.environ.get('NIGHT_SCHEDULE_CSV_B64', '')
-    if not encoded:
+    now = now or datetime.now(CASABLANCA)
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=CASABLANCA)
+    local_now = now.astimezone(CASABLANCA)
+    duty_date = local_now.date()
+    # Before 09:00, show the shift that started the previous evening.
+    if local_now.time() < time(9, 0):
+        duty_date -= timedelta(days=1)
+    if duty_date < ANCHOR:
         return None
-    try:
-        raw = base64.b64decode(encoded, validate=True).decode('utf-8-sig')
-        records = csv.DictReader(io.StringIO(raw))
-        for r in records:
-            dt = r['التاريخ']
-            start = datetime.fromisoformat(dt + 'T' + r['بداية الحراسة']).replace(tzinfo=ZoneInfo('Africa/Casablanca'))
-            end = datetime.fromisoformat(dt + 'T' + r['نهاية الحراسة (صباح اليوم التالي)']).replace(tzinfo=ZoneInfo('Africa/Casablanca'))
-            if end <= start: end += timedelta(days=1)
-            if start <= now < end or (now.date().isoformat()==dt and now < start):
-                return {'id':'night-current','date':dt,'nameAr':r['اسم الصيدلية'],'name':r['اسم الصيدلية'],'phone':r['الهاتف'],'address':r['العنوان'],'startTime':r['بداية الحراسة'],'endTime':r['نهاية الحراسة (صباح اليوم التالي)'],'verified':False,'upcoming':now<start,'source':'برنامج الحراسة المقدم من المستخدم'}
-    except (ValueError, KeyError, UnicodeError, TypeError) as e:
-        raise RuntimeError('Invalid private schedule configuration') from e
-    return None
+    raw = os.environ.get("NIGHT_ROTATION_JSON", "")
+    if not raw:
+        return None
+    records = json.loads(raw)
+    if len(records) != CYCLE_LENGTH:
+        raise RuntimeError("Night rotation must contain exactly 40 entries")
+    index = (duty_date - ANCHOR).days % CYCLE_LENGTH
+    row = records[index]
+    if not row.get("nameAr") or not row.get("nameFr"):
+        raise RuntimeError("Incomplete night rotation entry")
+    return {
+        "id": "night-current",
+        "date": duty_date.isoformat(),
+        "name": row["nameFr"],
+        "nameAr": row["nameAr"],
+        "nameFr": row["nameFr"],
+        "phone": row.get("phone", ""),
+        "address": row.get("address", ""),
+        "startTime": "يُرجى التأكيد",
+        "endTime": "09:00",
+        "verified": False,
+        "upcoming": local_now.date() == duty_date and local_now.time() < time(21, 30),
+        "source": "دورة الحراسة الليلية المكونة من 40 صيدلية - تحتاج تأكيد التوقيت",
+        "locationNeedsReview": bool(row.get("locationNeedsReview", False)),
+        "scheduleBasedOnRotation": True
+    }
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
-            body=json.dumps({'pharmacy':get_duty()},ensure_ascii=False).encode('utf-8')
-            status=200
+            payload = json.dumps({"pharmacy": get_duty()}, ensure_ascii=False).encode("utf-8")
+            status = 200
         except Exception:
-            body=b'{"error":"Schedule unavailable"}'
-            status=503
+            payload = b'{"error":"Night rotation unavailable"}'
+            status = 503
         self.send_response(status)
-        self.send_header('Content-Type','application/json; charset=utf-8')
-        self.send_header('Cache-Control','no-store')
-        self.send_header('X-Content-Type-Options','nosniff')
-        self.send_header('Content-Length',str(len(body)))
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Content-Length", str(len(payload)))
         self.end_headers()
-        self.wfile.write(body)
+        self.wfile.write(payload)
