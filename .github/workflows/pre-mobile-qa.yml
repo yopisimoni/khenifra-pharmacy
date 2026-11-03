@@ -1,7 +1,7 @@
 name: Khénifra pre-mobile QA
 on:
   push:
-    branches: [audit/pre-mobile-2026-11-03]
+    branches: [main, audit/pre-mobile-2026-11-03]
   pull_request:
     paths:
       - "index.html"
