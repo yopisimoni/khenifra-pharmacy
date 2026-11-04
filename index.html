@@ -436,7 +436,7 @@ function setLang(next){ lang = ['ar','fr','en'].includes(next) ? next : 'ar'; tr
   window.addEventListener('hashchange',handleSharedLink);
   document.addEventListener('visibilitychange',()=>{ if(!document.hidden){loadWeek();loadNight();} });
   let lastDutyPeriod = isoToday() + ':' + (isNightShiftHours() ? 'night' : 'day');
-  window.setInterval(()=>{ const period=isoToday() + ':' + (isNightShiftHours() ? 'night' : 'day'); if(period !== lastDutyPeriod){ lastDutyPeriod=period; loadWeek(); loadNight(); renderAll(); } }, 30000);
+  window.setInterval(()=>{ const period=isoToday() + ':' + (isNightShiftHours() ? 'night' : 'day'); if(period !== lastDutyPeriod){ const oldPeriod=lastDutyPeriod; lastDutyPeriod=period; if(oldPeriod.endsWith(':night') && period.endsWith(':day') && document.getElementById('night').classList.contains('active')) switchTab('today'); if(period.endsWith(':night') && document.getElementById('today').classList.contains('active')) switchTab('night'); loadWeek(); loadNight(); renderAll(); } }, 30000);
   
   document.getElementById('skipSplash')?.addEventListener('click', hideSplash);
   window.setTimeout(hideSplash, 2600);
