@@ -34,4 +34,19 @@ assert.ok(text.includes('href="/privacy.html"'), 'Footer must link to public pri
 assert.ok(text.includes("renderMap(); bindActions();"), 'Map controls must be rebound after rerender');
 assert.ok(text.includes('${actionButtons(item)}${feedbackRow(item)}'), 'Night shift needs a report error action');
 assert.ok(text.includes('${smallActions(p)}${feedbackRow(p)}'), 'Map entries need a report error action');
+const shiftStart=text.indexOf('function casablancaHour(');
+const shiftEnd=text.indexOf('function activeDutyPharmacies(',shiftStart);
+assert.ok(shiftStart > 0 && shiftEnd > shiftStart,'Duty hours functions missing');
+const shiftHelpers=vm.runInNewContext(text.slice(shiftStart,shiftEnd)+';({isNightShiftHours})',{Intl,Date});
+for(const [timestamp,night] of [
+ ['2026-11-04T07:59:00Z',true],  // 08:59 Morocco
+ ['2026-11-04T08:00:00Z',false], // 09:00 Morocco
+ ['2026-11-04T19:59:00Z',false],// 20:59 Morocco
+ ['2026-11-04T20:00:00Z',true], // 21:00 Morocco
+ ['2026-11-04T23:15:00Z',true], // after midnight Morocco
+]) assert.equal(shiftHelpers.isNightShiftHours(new Date(timestamp)),night,'Duty boundary '+timestamp);
+assert.ok(text.includes('const currentList = activeDutyPharmacies();'),'Map should show only active duty pharmacies');
+assert.ok(text.includes('els.tabToday.hidden=nighttime'),'Day pharmacy tab must be hidden at night');
+assert.ok(text.includes("if(tab==='today' && isNightShiftHours()) tab='night'"),'Night must not show daytime tab');
+assert.ok(text.includes("lastDutyPeriod"),'Duty should refresh across shift changes');
 console.log('PASS: HTML JS, three-language key parity, privacy page, Morocco timezone, no embedded map key');
