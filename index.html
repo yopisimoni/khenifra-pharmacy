@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#0d5948" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Khénifra Pharma" />
+  <meta name="description" content="دليل صيدليات الحراسة في خنيفرة مع الاتصال والخرائط والحراسة الليلية." />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="/icons/pharmacy.svg" />
   <title>Khénifra Pharma | صيدليات الحراسة</title>
   <style>
     :root{--bg:#f5f8f6;--card:#ffffff;--ink:#18332d;--muted:#5d746c;--line:#d8e6df;--brand:#0d5948;--brand-2:#117a63;--soft:#eaf5f0;--warn:#f9f2df;--warn-line:#ebd7a0;--danger:#8a3d3d;--shadow:0 10px 30px rgba(5,45,35,.07);--radius:22px}
@@ -434,6 +440,10 @@ function setLang(next){ lang = ['ar','fr','en'].includes(next) ? next : 'ar'; tr
     setTimeout(()=>{const el=[...document.querySelectorAll('[data-action="directions"]')].find(x=>x.dataset.id===id);el?.closest('.card')?.scrollIntoView({behavior:'smooth',block:'center'});},120);
   }
   window.addEventListener('hashchange',handleSharedLink);
+  // Offline fallback only. Never cache live duty schedules or Maps.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}), {once:true});
+  }
   document.addEventListener('visibilitychange',()=>{ if(!document.hidden){loadWeek();loadNight();} });
   let lastDutyPeriod = isoToday() + ':' + (isNightShiftHours() ? 'night' : 'day');
   window.setInterval(()=>{ const period=isoToday() + ':' + (isNightShiftHours() ? 'night' : 'day'); if(period !== lastDutyPeriod){ const oldPeriod=lastDutyPeriod; lastDutyPeriod=period; if(oldPeriod.endsWith(':night') && period.endsWith(':day') && document.getElementById('night').classList.contains('active')) switchTab('today'); if(period.endsWith(':night') && document.getElementById('today').classList.contains('active')) switchTab('night'); loadWeek(); loadNight(); renderAll(); } }, 30000);
