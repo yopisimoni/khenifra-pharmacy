@@ -1,0 +1,20 @@
+{
+  "name": "Khénifra Pharma | صيدليات الحراسة",
+  "short_name": "Khénifra Pharma",
+  "description": "دليل صيدليات الحراسة بمدينة خنيفرة",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f8f6",
+  "theme_color": "#0d5948",
+  "icons": [
+    {
+      "src": "/icons/pharmacy.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
