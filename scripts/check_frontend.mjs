@@ -49,4 +49,16 @@ assert.ok(text.includes('const currentList = activeDutyPharmacies();'),'Map shou
 assert.ok(text.includes('els.tabToday.hidden=nighttime'),'Day pharmacy tab must be hidden at night');
 assert.ok(text.includes("if(tab==='today' && isNightShiftHours()) tab='night'"),'Night must not show daytime tab');
 assert.ok(text.includes("lastDutyPeriod"),'Duty should refresh across shift changes');
+const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
+assert.equal(manifest.display,'standalone');
+assert.equal(manifest.start_url,'/');
+assert.ok(manifest.icons.some(i=>i.src==='/icons/pharmacy.svg'));
+assert.ok(fs.readFileSync('icons/pharmacy.svg','utf8').includes('<svg'));
+const worker=fs.readFileSync('sw.js','utf8');
+new vm.Script(worker,{filename:'sw.js'});
+assert.ok(!worker.includes("cache.put(request"),'Never cache duty or map requests');
+assert.ok(worker.includes("request.mode !== 'navigate'"),'Offline fallback applies only to navigations');
+assert.ok(text.includes('rel="manifest"'), 'PWA manifest missing from HTML');
+assert.ok(text.includes("serviceWorker.register('/sw.js')"),'Offline worker not registered');
+assert.ok(fs.readFileSync('offline.html','utf8').includes('لا يمكن التأكد'), 'Offline warning must explain duty cannot be confirmed');
 console.log('PASS: HTML JS, three-language key parity, privacy page, Morocco timezone, no embedded map key');
