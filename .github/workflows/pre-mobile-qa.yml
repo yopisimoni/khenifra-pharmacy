@@ -9,6 +9,10 @@ on:
       - "tests/**"
       - "scripts/**"
       - "vercel.json"
+      - "manifest.webmanifest"
+      - "sw.js"
+      - "offline.html"
+      - "icons/**"
       - ".github/workflows/pre-mobile-qa.yml"
 permissions:
   contents: read
