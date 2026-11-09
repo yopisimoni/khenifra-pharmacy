@@ -226,6 +226,8 @@
     {date:'2026-11-18', ar:'عيد الاستقلال',fr:'Fête de l’Indépendance',en:'Independence Day', names:[]}
   ];
   let nightSchedule = [];
+  let nightLoadError = false;
+  let nightRequestId = 0;
   const hiddenDirectory = [];
   let allKnown = [];
 
@@ -289,13 +291,27 @@
   }
 
 function setLang(next){ lang = ['ar','fr','en'].includes(next) ? next : 'ar'; try{localStorage.setItem('kp_lang', lang);}catch(_err){} document.documentElement.lang = lang; document.documentElement.dir = tr[lang].dir; els.lang.value=lang; document.title = 'Khénifra Pharma | ' + t('tabToday'); els.brandName.textContent=t('brandName'); els.eyebrow.textContent=t('eyebrow'); els.headline.innerHTML=t('headline'); els.lead.textContent=t('lead'); els.city.textContent=t('city'); els.noticeTitle.textContent=t('noticeTitle'); els.noticeBody.textContent=t('noticeBody'); updateOwnerMapNotice(); els.tabToday.textContent=t('tabToday'); els.tabNight.textContent=t('tabNight'); els.tabHolidays.textContent=t('tabHolidays'); els.tabMap.textContent=t('tabMap'); els.tabInfo.textContent=t('tabInfo'); els.footerText.textContent=t('footerText'); els.footerSource.textContent=t('footerSource'); els.contactMail.textContent=t('contact'); els.contactMail.href=`mailto:${email}`; els.contactMail.style.display='inline-flex'; els.copyContact.textContent=t('copyContact'); els.copyContact.style.display='inline-flex'; document.getElementById('openFeedback').textContent=t('feedbackOpen'); document.getElementById('footerNote').textContent=t('footerNote'); updateSplashTexts(); document.getElementById('shareAppBtn').textContent=eText('shareApp'); document.getElementById('aboutLink').textContent=eText('about'); document.getElementById('privacyLink').textContent=eText('privacy'); document.getElementById('contactLink').textContent=eText('contactPage'); updateFeedbackLabels(); renderAll(); }
-  function isoToday(){ const parts = new Intl.DateTimeFormat('en-US',{timeZone:'Africa/Casablanca',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()); const p = Object.fromEntries(parts.filter(x=>x.type !== 'literal').map(x=>[x.type,x.value])); return `${p.year}-${p.month}-${p.day}`; }
+  function isoToday(){ return isoDateInCasablanca(); }
   function casablancaHour(now=new Date()){ return Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Casablanca',hour:'2-digit',hourCycle:'h23'}).format(now)); }
   function isNightHour(hour){ return hour>=21 || hour<9; }
   function isNightShiftHours(now=new Date()){ return isNightHour(casablancaHour(now)); }
   function activeDutyPharmacies(){ if(isNightShiftHours()) return getTodayNight() ? [getTodayNight()] : []; return (currentWeek.start && isoToday()>=currentWeek.start && isoToday()<=currentWeek.end) ? weeklyPharmacies : []; }
   function formatDate(dateStr){ const date = new Date(dateStr + 'T12:00:00'); return date.toLocaleDateString(lang==='ar'?'ar-MA':lang==='fr'?'fr-FR':'en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'}); }
-  function getTodayNight(){ return nightSchedule[0] || null; }
+  function expectedNightDate(now=new Date()){
+    const iso=isoDateInCasablanca(now);
+    if(casablancaHour(now)>=9) return iso;
+    const [y,m,d]=iso.split('-').map(Number);
+    return new Date(Date.UTC(y,m-1,d-1)).toISOString().slice(0,10);
+  }
+  function isoDateInCasablanca(now=new Date()){
+    const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Africa/Casablanca',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now);
+    const p=Object.fromEntries(parts.filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));
+    return p.year+'-'+p.month+'-'+p.day;
+  }
+  function getTodayNight(){
+    const item=nightSchedule[0];
+    return item && item.date===expectedNightDate() ? item : null;
+  }
   function pharmacyQuery(p){ const display=p.nameFr || (p.name==="JABOR"?"Pharmacie Jabbour":p.name==="TOUHAMI"?"Pharmacie Touhami":p.name||p.nameAr); return [display,p.address,"Khénifra, Morocco"].filter(Boolean).join(", "); }
   function phoneHref(p){ return `tel:${(p.phone||'').replace(/\s+/g,'')}`; }
   function mapEmbedPlace(query){ if(MAPS_KEY) return `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(MAPS_KEY)}&q=${encodeURIComponent(query)}`; return `about:blank`; }
@@ -403,7 +419,7 @@ function setLang(next){ lang = ['ar','fr','en'].includes(next) ? next : 'ar'; tr
   function shareButton(p){return `<div class="share-line"><button class="pill" data-action="share-pharmacy" data-id="${escapeHtml(p.id || p.name)}">↗ ${eText('sharePharmacy')}</button></div>`;}
   function extraDetails(p){ return shareButton(p)+`<details><summary>${t('extra')}</summary><div class="small"><b>${t('source')}:</b> ${escapeHtml(p.source || '-')}<br>${escapeHtml(p.address || '')}<br>${!p.verified ? '⚠ '+t('confirmBefore'):''}</div></details>`; }
   function feedbackRow(p){ return `<div class="feedback"><div class="small">${t('feedbackQ')}</div><div class="choices"><button class="pill" data-action="helpful">${t('yes')}</button><button class="pill" data-action="feedback" data-id="${escapeHtml(p.id || p.name)}">${t('report')}</button></div></div>`; }
-  function renderToday(){ const cards = (isNightShiftHours() ? [] : activeDutyPharmacies()).map(p=>`<article class="card"><div class="card-top"><div><div class="badge ok">${t('weekGuardLabel')}</div><div class="name">${escapeHtml(p.nameAr || p.name)}</div></div>${badge(p)}</div><div class="pharmacy">${escapeHtml(p.nameAr || p.name)}<div class="name-fr" lang="fr">${escapeHtml(p.nameFr || ("Pharmacie "+(p.name || "")))}</div></div><div class="address">${escapeHtml(p.address)}</div>${addressStatus(p)}${p.phone?`<div class="phone">☎ ${escapeHtml(p.phone)}</div>`:''}${phoneStatus(p)}${actionButtons(p)}${feedbackRow(p)}${extraDetails(p)}</article>`).join(''); const night = getTodayNight(); const nightCard = night ? `<article class="card night-card"><div class="night-label">${t('nightBadge')}</div><div class="card-top"><div><div class="badge ok">${t('tonight')}</div><div class="name">${escapeHtml(night.nameAr || night.name)}</div></div>${badge(night)}</div><div class="pharmacy">${escapeHtml(night.nameAr || night.name)}<div class="name-fr" lang="fr">${escapeHtml(night.nameFr || night.name || "")}</div></div><div class="address">${formatDate(night.date)}<br>${escapeHtml(night.address)}</div>${night.phone?`<div class="phone">☎ ${escapeHtml(night.phone)}</div>`:night.phoneNeedsReview?`<div class="small">${lang==='ar'?'رقم الهاتف قيد التحقق':lang==='fr'?'Numéro de téléphone en cours de vérification':'Phone number under review'}</div>`:''}${actionButtons(night)}${feedbackRow(night)}${extraDetails(night)}</article>` : '';
+  function renderToday(){ const cards = (isNightShiftHours() ? [] : activeDutyPharmacies()).map(p=>`<article class="card"><div class="card-top"><div><div class="badge ok">${t('weekGuardLabel')}</div><div class="name">${escapeHtml(p.nameAr || p.name)}</div></div>${badge(p)}</div><div class="pharmacy">${escapeHtml(p.nameAr || p.name)}<div class="name-fr" lang="fr">${escapeHtml(p.nameFr || ("Pharmacie "+(p.name || "")))}</div></div><div class="address">${escapeHtml(p.address)}</div>${addressStatus(p)}${p.phone?`<div class="phone">☎ ${escapeHtml(p.phone)}</div>`:''}${phoneStatus(p)}${actionButtons(p)}${feedbackRow(p)}${extraDetails(p)}</article>`).join(''); const nightCard = '';
     const expired=!currentWeek.start || isoToday()>currentWeek.end;
     const emptyMessage=lang==='ar' ? 'انتهى جدول الحراسة الأسبوعية المنشور. سنعرض الصيدليات الجديدة بعد التأكد من البرنامج المحدث. يرجى الاتصال بالصيدلية أو التحقق محلياً قبل التنقل.' : lang==='fr' ? 'Le planning hebdomadaire publié est terminé. Les nouvelles pharmacies seront affichées après vérification du planning actualisé. Confirmez localement avant de vous déplacer.' : 'The published weekly duty schedule has ended. New duty pharmacies will appear after the updated schedule is verified. Please check locally before travelling.';
     const weekLabel=expired ? (weeklyLoadError ? (lang==='ar'?'تعذر تحميل برنامج الحراسة الأسبوعية':lang==='fr'?'Impossible de charger la garde hebdomadaire':'Unable to load weekly duty') : (lang==='ar'?'تحديث الحراسة الأسبوعية مطلوب':lang==='fr'?'Mise à jour de la garde hebdomadaire nécessaire':'Weekly duty update needed')) : t('weekSubtitle')+' · '+currentWeek.start+' – '+currentWeek.end;
@@ -412,7 +428,7 @@ function setLang(next){ lang = ['ar','fr','en'].includes(next) ? next : 'ar'; tr
   }
   function renderNight(){
     const item = getTodayNight();
-    const items = item ? `<article class="card night-card"><div class="night-label">${t('nightBadge')}</div><div class="card-top"><div><div class="badge ok">${formatDate(item.date)}</div><div class="name">${escapeHtml(item.nameAr)}</div></div>${badge(item)}</div><div class="pharmacy">${escapeHtml(item.nameAr)}<div class="name-fr" lang="fr">${escapeHtml(item.nameFr || item.name || "")}</div></div><div class="address">${escapeHtml(item.address)}<br>${item.scheduleBasedOnRotation ? (lang==="ar" ? "⏰ 21:00 – 09:00 (قد تبدأ بعض المناوبات 21:30). يُرجى الاتصال قبل التنقل." : lang==="fr" ? "⏰ 21h00–09h00 (début parfois à 21h30). Appelez avant de vous déplacer." : "⏰ 21:00–09:00 (some shifts start at 21:30). Please call before travelling.") : ("⏰ "+escapeHtml(item.startTime)+" – "+escapeHtml(item.endTime))}</div>${item.phone?`<div class="phone">☎ ${escapeHtml(item.phone)}</div>`:item.phoneNeedsReview?`<div class="small">${lang==='ar'?'رقم الهاتف قيد التحقق':lang==='fr'?'Numéro de téléphone en cours de vérification':'Phone number under review'}</div>`:''}${actionButtons(item)}${feedbackRow(item)}${extraDetails(item)}</article>` : `<div class="empty">${lang==='ar'?'لم نتوصل بعد بجدول الحراسة الليلية المحدّث بعد 1 نونبر 2026. هذا لا يعني عدم وجود صيدلية مناوبة. يُرجى التحقق محلياً قبل التنقل.':lang==='fr'?'Le planning des gardes de nuit après le 1er novembre 2026 n’est pas encore disponible ici. Cela ne signifie pas qu’aucune pharmacie est de garde. Vérifiez localement avant de vous déplacer.':'The night-duty schedule after 1 November 2026 is not yet available here. This does not mean no pharmacy is on duty. Please verify locally before travelling.'}</div>`;
+    const items = item ? `<article class="card night-card"><div class="night-label">${t('nightBadge')}</div><div class="card-top"><div><div class="badge ok">${formatDate(item.date)}</div><div class="name">${escapeHtml(item.nameAr)}</div></div>${badge(item)}</div><div class="pharmacy">${escapeHtml(item.nameAr)}<div class="name-fr" lang="fr">${escapeHtml(item.nameFr || item.name || "")}</div></div><div class="address">${escapeHtml(item.address)}<br>${item.scheduleBasedOnRotation ? (lang==="ar" ? "⏰ 21:00 – 09:00 (قد تبدأ بعض المناوبات 21:30). يُرجى الاتصال قبل التنقل." : lang==="fr" ? "⏰ 21h00–09h00 (début parfois à 21h30). Appelez avant de vous déplacer." : "⏰ 21:00–09:00 (some shifts start at 21:30). Please call before travelling.") : ("⏰ "+escapeHtml(item.startTime)+" – "+escapeHtml(item.endTime))}</div>${item.phone?`<div class="phone">☎ ${escapeHtml(item.phone)}</div>`:item.phoneNeedsReview?`<div class="small">${lang==='ar'?'رقم الهاتف قيد التحقق':lang==='fr'?'Numéro de téléphone en cours de vérification':'Phone number under review'}</div>`:''}${actionButtons(item)}${feedbackRow(item)}${extraDetails(item)}</article>` : `<div class="empty" role="status">${nightLoadError ? (lang==='ar'?'تعذر تحميل بيانات الحراسة الليلية حالياً. أعد المحاولة أو تحقق محلياً قبل التنقل.':lang==='fr'?'Impossible de charger la garde de nuit. Réessayez ou vérifiez localement avant de partir.':'Unable to load night duty. Retry or check locally before travelling.') : (lang==='ar'?'لا تتوفر بيانات مؤكدة للحراسة الليلية لهذا التاريخ. يرجى التحقق محلياً قبل التنقل.':lang==='fr'?'Aucune donnée confirmée de garde de nuit pour cette date. Vérifiez localement avant de vous déplacer.':'No confirmed night-duty data for this date. Verify locally before travelling.')}</div>`;
     els.night.innerHTML = `<div class="panel"><div class="section-title"><div><h2>${t('nightTitle')}</h2><p>${item ? formatDate(item.date) + ' · ' + item.startTime + ' – ' + item.endTime : t('noticeBody')}</p></div><span class="badge">${t('nightBadge')}</span></div><div class="cards">${items}</div></div>`;
   }
   function renderHolidays(){
@@ -534,13 +550,28 @@ function setLang(next){ lang = ['ar','fr','en'].includes(next) ? next : 'ar'; tr
     }
   }
   async function loadNight(){
+    const requestId=++nightRequestId;
+    const requestedDate=expectedNightDate();
     try {
-      const res = await fetch('/api/night/current', {cache:'no-store'});
-      if(!res.ok) throw new Error('Night data unavailable');
-      const data = await res.json();
-      nightSchedule = data.pharmacy ? [data.pharmacy] : [];
+      const res=await fetch('/api/night/current',{cache:'no-store'});
+      if(!res.ok) throw new Error('Night schedule unavailable');
+      const data=await res.json();
+      if(requestId!==nightRequestId) return;
+      if(requestedDate!==expectedNightDate()) return;
+      const item=data.pharmacy;
+      if(item && item.date===requestedDate && item.id && item.nameAr){
+        nightSchedule=[item];nightLoadError=false;
+      }else{
+        nightSchedule=[];nightLoadError=true;
+      }
       renderAll();
-    } catch(err){ nightSchedule=[]; renderAll(); console.warn('Night schedule unavailable'); }
+    } catch(err){
+      if(requestId!==nightRequestId) return;
+      const cached=nightSchedule[0];
+      if(!cached || cached.date!==expectedNightDate())nightSchedule=[];
+      nightLoadError=!nightSchedule.length;
+      renderAll();console.warn('Night duty temporarily unavailable');
+    }
   }
   document.getElementById('shareAppBtn').addEventListener('click',()=>shareThing(null));
   document.getElementById('aboutLink').addEventListener('click',()=>openLegal('about'));
@@ -563,6 +594,7 @@ function setLang(next){ lang = ['ar','fr','en'].includes(next) ? next : 'ar'; tr
   }
   document.addEventListener('visibilitychange',()=>{ if(!document.hidden){loadWeek();loadNight();} });
   let lastDutyPeriod = isoToday() + ':' + (isNightShiftHours() ? 'night' : 'day');
+  window.setInterval(()=>{ if(!document.hidden && (nightLoadError || weeklyLoadError)) { if(nightLoadError)loadNight(); if(weeklyLoadError)loadWeek(); } }, 60000);
   window.setInterval(()=>{ const period=isoToday() + ':' + (isNightShiftHours() ? 'night' : 'day'); if(period !== lastDutyPeriod){ const oldPeriod=lastDutyPeriod; lastDutyPeriod=period; if(oldPeriod.endsWith(':night') && period.endsWith(':day') && document.getElementById('night').classList.contains('active')) switchTab('today'); if(period.endsWith(':night') && document.getElementById('today').classList.contains('active')) switchTab('night'); loadWeek(); loadNight(); renderAll(); } }, 30000);
   
   document.getElementById('skipSplash')?.addEventListener('click', hideSplash);
