@@ -35,7 +35,7 @@ def check(path, expected):
     elif expected == "image/png":
         if ctype != expected:
             raise AssertionError(f"{path}: content type {ctype}")
-        assert body[:8] == b"\\x89PNG\\r\\n\\x1a\\n", f"{path}: not a PNG (first 12 bytes hex: {body[:12].hex()}, length={len(body)})"
+        assert body[:8] == bytes.fromhex("89504e470d0a1a0a"), f"{path}: not a PNG (first 12 bytes hex: {body[:12].hex()}, length={len(body)})"
         size = int(path.rsplit("-", 1)[1].split(".", 1)[0])
         assert int.from_bytes(body[16:20], "big") == size, f"{path}: wrong width"
         assert int.from_bytes(body[20:24], "big") == size, f"{path}: wrong height"
