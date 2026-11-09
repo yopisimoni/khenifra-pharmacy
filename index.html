@@ -18,6 +18,10 @@
     .app{max-width:1120px;margin:0 auto;padding:16px 16px 48px}
     .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;background:rgba(255,255,255,.86);backdrop-filter: blur(12px);border:1px solid var(--line);border-radius:20px;padding:14px 16px;position:sticky;top:10px;z-index:30;box-shadow:var(--shadow)}
     .brand{display:flex;align-items:center;gap:12px;min-width:0}.brandmark{width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;display:grid;place-items:center;font-weight:800;font-size:26px;flex:0 0 auto}.brand b{display:block;font-size:18px;line-height:1.15}.brand small{display:block;color:var(--muted);font-size:12px;letter-spacing:.08em}
+    .owner-map-notice{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0 0;padding:11px 15px;border:1px solid #bcd9d0;border-radius:14px;background:#edf7f3;color:#234d40;font-size:13px;line-height:1.65}
+    .owner-map-notice p{margin:0;flex:1;min-width:190px}
+    .owner-map-notice a{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:8px 13px;border-radius:11px;background:#0d5948;color:white;font-weight:700;white-space:nowrap}
+    .owner-map-notice a:focus-visible{outline:3px solid #e9ae47;outline-offset:2px}
     .lang-wrap{display:flex;gap:8px;align-items:center}.lang-wrap select{border:1px solid var(--line);background:#fff;border-radius:14px;padding:10px 12px;min-height:44px}
     .hero{padding:26px 6px 18px}.eyebrow{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;color:var(--muted);font-size:13px}.dot{width:8px;height:8px;border-radius:50%;background:#2cb67d;box-shadow:0 0 0 5px rgba(44,182,125,.18)}
     h1{margin:18px 0 10px;font-size:clamp(28px,6vw,48px);line-height:1.05} h1 em{font-style:normal;color:var(--brand)}
@@ -108,6 +112,10 @@
       </select>
     </div>
   </header>
+  <aside class="owner-map-notice" aria-label="Pharmacy location corrections">
+    <p id="ownerMapNoticeText"></p>
+    <a id="ownerMapNoticeEmail" href="mailto:simohamed.amara@gmail.com"></a>
+  </aside>
 
   <section class="hero">
     <div class="eyebrow"><span class="dot"></span><span id="eyebrow"></span></div>
@@ -263,7 +271,20 @@
     window.setTimeout(()=>{ splash.style.display='none'; }, 600);
   }
 
-function setLang(next){ lang = ['ar','fr','en'].includes(next) ? next : 'ar'; try{localStorage.setItem('kp_lang', lang);}catch(_err){} document.documentElement.lang = lang; document.documentElement.dir = tr[lang].dir; els.lang.value=lang; document.title = 'Khénifra Pharma | ' + t('tabToday'); els.brandName.textContent=t('brandName'); els.eyebrow.textContent=t('eyebrow'); els.headline.innerHTML=t('headline'); els.lead.textContent=t('lead'); els.city.textContent=t('city'); els.noticeTitle.textContent=t('noticeTitle'); els.noticeBody.textContent=t('noticeBody'); els.tabToday.textContent=t('tabToday'); els.tabNight.textContent=t('tabNight'); els.tabHolidays.textContent=t('tabHolidays'); els.tabMap.textContent=t('tabMap'); els.tabInfo.textContent=t('tabInfo'); els.footerText.textContent=t('footerText'); els.footerSource.textContent=t('footerSource'); els.contactMail.textContent=t('contact'); els.contactMail.href=`mailto:${email}`; els.contactMail.style.display='inline-flex'; els.copyContact.textContent=t('copyContact'); els.copyContact.style.display='inline-flex'; document.getElementById('openFeedback').textContent=t('feedbackOpen'); document.getElementById('footerNote').textContent=t('footerNote'); updateSplashTexts(); document.getElementById('shareAppBtn').textContent=eText('shareApp'); document.getElementById('aboutLink').textContent=eText('about'); document.getElementById('privacyLink').textContent=eText('privacy'); document.getElementById('contactLink').textContent=eText('contactPage'); updateFeedbackLabels(); renderAll(); }
+  const ownerMapNotice = {
+    ar:{text:'لأصحاب الصيدليات: هل موقع صيدليتكم على الخريطة غير دقيق؟ تواصلوا معنا مع الاسم والعنوان أو رابط الموقع الصحيح لنراجعه ونصححه.',button:'طلب تصحيح الموقع',subject:'تصحيح موقع صيدلية على خريطة خنيفرة فارما'},
+    fr:{text:'Propriétaires de pharmacie : votre emplacement sur la carte est incorrect ? Envoyez-nous le nom, l’adresse ou le lien de la bonne position pour vérification et correction.',button:'Signaler un emplacement',subject:'Correction de la position d’une pharmacie - Khénifra Pharma'},
+    en:{text:'Pharmacy owners: is your map location incorrect? Send us the pharmacy name, address or correct map link so we can review and fix it.',button:'Request map correction',subject:'Pharmacy map location correction - Khénifra Pharma'}
+  };
+  function updateOwnerMapNotice(){
+    const copy=ownerMapNotice[lang] || ownerMapNotice.ar;
+    document.getElementById('ownerMapNoticeText').textContent=copy.text;
+    const link=document.getElementById('ownerMapNoticeEmail');
+    link.textContent=copy.button;
+    link.href='mailto:'+email+'?subject='+encodeURIComponent(copy.subject);
+  }
+
+function setLang(next){ lang = ['ar','fr','en'].includes(next) ? next : 'ar'; try{localStorage.setItem('kp_lang', lang);}catch(_err){} document.documentElement.lang = lang; document.documentElement.dir = tr[lang].dir; els.lang.value=lang; document.title = 'Khénifra Pharma | ' + t('tabToday'); els.brandName.textContent=t('brandName'); els.eyebrow.textContent=t('eyebrow'); els.headline.innerHTML=t('headline'); els.lead.textContent=t('lead'); els.city.textContent=t('city'); els.noticeTitle.textContent=t('noticeTitle'); els.noticeBody.textContent=t('noticeBody'); updateOwnerMapNotice(); els.tabToday.textContent=t('tabToday'); els.tabNight.textContent=t('tabNight'); els.tabHolidays.textContent=t('tabHolidays'); els.tabMap.textContent=t('tabMap'); els.tabInfo.textContent=t('tabInfo'); els.footerText.textContent=t('footerText'); els.footerSource.textContent=t('footerSource'); els.contactMail.textContent=t('contact'); els.contactMail.href=`mailto:${email}`; els.contactMail.style.display='inline-flex'; els.copyContact.textContent=t('copyContact'); els.copyContact.style.display='inline-flex'; document.getElementById('openFeedback').textContent=t('feedbackOpen'); document.getElementById('footerNote').textContent=t('footerNote'); updateSplashTexts(); document.getElementById('shareAppBtn').textContent=eText('shareApp'); document.getElementById('aboutLink').textContent=eText('about'); document.getElementById('privacyLink').textContent=eText('privacy'); document.getElementById('contactLink').textContent=eText('contactPage'); updateFeedbackLabels(); renderAll(); }
   function isoToday(){ const parts = new Intl.DateTimeFormat('en-US',{timeZone:'Africa/Casablanca',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()); const p = Object.fromEntries(parts.filter(x=>x.type !== 'literal').map(x=>[x.type,x.value])); return `${p.year}-${p.month}-${p.day}`; }
   function casablancaHour(now=new Date()){ return Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Casablanca',hour:'2-digit',hourCycle:'h23'}).format(now)); }
   function isNightShiftHours(now=new Date()){ const hour=casablancaHour(now); return hour>=21 || hour<9; }
