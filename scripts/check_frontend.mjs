@@ -37,14 +37,18 @@ assert.ok(text.includes('${smallActions(p)}${feedbackRow(p)}'), 'Map entries nee
 const shiftStart=text.indexOf('function casablancaHour(');
 const shiftEnd=text.indexOf('function activeDutyPharmacies(',shiftStart);
 assert.ok(shiftStart > 0 && shiftEnd > shiftStart,'Duty hours functions missing');
-const shiftHelpers=vm.runInNewContext(text.slice(shiftStart,shiftEnd)+';({isNightShiftHours})',{Intl,Date});
-for(const [timestamp,night] of [
- ['2026-11-04T07:59:00Z',true],  // 08:59 Morocco
- ['2026-11-04T08:00:00Z',false], // 09:00 Morocco
- ['2026-11-04T19:59:00Z',false],// 20:59 Morocco
- ['2026-11-04T20:00:00Z',true], // 21:00 Morocco
- ['2026-11-04T23:15:00Z',true], // after midnight Morocco
-]) assert.equal(shiftHelpers.isNightShiftHours(new Date(timestamp)),night,'Duty boundary '+timestamp);
+const shiftHelpers=vm.runInNewContext(text.slice(shiftStart,shiftEnd)+';({isNightHour,isNightShiftHours,casablancaHour})',{Intl,Date});
+for(const [hour,night] of [[0,true],[8,true],[9,false],[20,false],[21,true],[23,true]]){
+  assert.equal(shiftHelpers.isNightHour(hour),night,'Duty boundary at Casablanca local hour '+hour);
+}
+// Runtime date conversion is checked separately; do not assume every ICU build
+// has identical future Morocco DST metadata when interpreting UTC instants.
+for(const timestamp of ['2026-11-04T12:00:00Z','2026-11-04T22:00:00Z']){
+  const instant=new Date(timestamp);
+  const hour=shiftHelpers.casablancaHour(instant);
+  assert.ok(Number.isInteger(hour) && hour>=0 && hour<=23,'Invalid Casablanca time');
+  assert.equal(shiftHelpers.isNightShiftHours(instant),shiftHelpers.isNightHour(hour));
+}
 assert.ok(text.includes('const currentList = activeDutyPharmacies();'),'Map should show only active duty pharmacies');
 assert.ok(text.includes('els.tabToday.hidden=nighttime'),'Day pharmacy tab must be hidden at night');
 assert.ok(text.includes("if(tab==='today' && isNightShiftHours()) tab='night'"),'Night must not show daytime tab');
