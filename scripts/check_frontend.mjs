@@ -74,4 +74,26 @@ for (const locale of ['ar:{text:', 'fr:{text:', 'en:{text:']) {
   assert.ok(text.includes(locale),'Owner map notice missing translation '+locale);
 }
 assert.ok(text.includes("link.href='mailto:'+email+'?subject='+encodeURIComponent(copy.subject)"),'Correction action should open email with localized subject');
+// Navigation choices must only appear after an explicit start point is available.
+assert.ok(text.includes('id="mapAppChooser" hidden'), 'Navigation apps shown before start point');
+assert.ok(text.includes("if(!origin){clearNavigationChoices();"), 'Missing start point must prevent chooser');
+assert.ok(text.includes("els.mapAppChooser.hidden=false;"), 'Navigation chooser should appear after origin');
+assert.ok(text.includes('navigator.geolocation.getCurrentPosition(pos=>'), 'Location-on-demand action missing');
+assert.ok(text.includes("els.startInput.addEventListener('input'"),'Manual start editing must reset stale options');
+assert.ok(text.includes("phoneStatus(p)"), 'Missing phones must be clearly labeled');
+assert.ok(text.includes("navigationMessage('search')") || text.includes("?'ready':'search'"),'Unverified pin warning missing');
+const navStart=text.indexOf('function navUrls(');
+const navEnd=text.indexOf('function reportMail(', navStart);
+assert.ok(navStart>0 && navEnd>navStart, 'Nav functions missing');
+const nav=vm.runInNewContext(text.slice(navStart,navEnd)+';navUrls',{pharmacyQuery:p=>[p.nameFr,p.address,'Khénifra, Morocco'].filter(Boolean).join(', ')});
+const unknown={nameFr:'Pharmacie Exemple',address:'Khénifra',locationVerified:false};
+const found=nav(unknown,'32.93,-5.66');
+assert.ok(found.google.includes('/maps/search/'),'Unverified Google navigation must search');
+assert.ok(found.waze.includes('waze.com/ul?q='),'Unverified Waze must search');
+assert.ok(found.apple.includes('maps.apple.com/?q='),'Unverified Apple must search');
+const confirmed={...unknown,locationVerified:true,lat:32.93,lng:-5.66};
+const exact=nav(confirmed,'32.93,-5.65');
+assert.ok(exact.google.includes('/maps/dir/')&&exact.google.includes('origin='),'Exact Google directions must include origin');
+assert.ok(exact.waze.includes('ll='),'Verified Waze should use coordinates');
+assert.ok(exact.apple.includes('daddr='),'Verified Apple directions must have destination');
 console.log('PASS: HTML JS, three-language key parity, privacy page, Morocco timezone, no embedded map key');
