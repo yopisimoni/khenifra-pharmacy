@@ -23,6 +23,7 @@
     .owner-map-notice p{margin:0;flex:1;min-width:190px}
     .owner-map-notice a{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:8px 13px;border-radius:11px;background:#0d5948;color:white;font-weight:700;white-space:nowrap}
     .owner-map-notice a:focus-visible{outline:3px solid #e9ae47;outline-offset:2px}
+    [hidden]{display:none!important}
     .lang-wrap{display:flex;gap:8px;align-items:center}.lang-wrap select{border:1px solid var(--line);background:#fff;border-radius:14px;padding:10px 12px;min-height:44px}
     .hero{padding:26px 6px 18px}.eyebrow{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;color:var(--muted);font-size:13px}.dot{width:8px;height:8px;border-radius:50%;background:#2cb67d;box-shadow:0 0 0 5px rgba(44,182,125,.18)}
     h1{margin:18px 0 10px;font-size:clamp(28px,6vw,48px);line-height:1.05} h1 em{font-style:normal;color:var(--brand)}
@@ -180,7 +181,7 @@
       <button class="close" id="closeModal" aria-label="Close">✕</button>
     </div>
     <div class="banner" id="modalWarn" style="display:none;margin:0 0 12px"><span>⚠</span><div id="modalWarnText"></div></div>
-    <div class="chooser">
+    <div class="chooser" id="mapAppChooser" hidden aria-label="Navigation apps">
       <a class="btn soft" id="openGoogle" target="_blank" rel="noopener">Google Maps</a>
       <a class="btn soft" id="openWaze" target="_blank" rel="noopener">Waze</a>
       <a class="btn soft" id="openApple" target="_blank" rel="noopener">Apple Maps</a>
@@ -248,7 +249,7 @@
     today: document.getElementById('today'), night: document.getElementById('night'), map: document.getElementById('map'), info: document.getElementById('info'),
     lang: document.getElementById('lang'), brandName: document.getElementById('brandName'), eyebrow: document.getElementById('eyebrow'), headline: document.getElementById('headline'), lead: document.getElementById('lead'), city: document.getElementById('city'), todayLabel: document.getElementById('todayLabel'), noticeTitle: document.getElementById('noticeTitle'), noticeBody: document.getElementById('noticeBody'),
     tabToday: document.getElementById('tabToday'), tabNight: document.getElementById('tabNight'), tabHolidays: document.getElementById('tabHolidays'), tabMap: document.getElementById('tabMap'), tabInfo: document.getElementById('tabInfo'), footerBrand: document.getElementById('footerBrand'), footerText: document.getElementById('footerText'), footerSource: document.getElementById('footerSource'), contactMail: document.getElementById('contactMail'), copyContact: document.getElementById('copyContact'),
-    navModal: document.getElementById('navModal'), dialogTitle: document.getElementById('dialogTitle'), dialogSubtitle: document.getElementById('dialogSubtitle'), closeModal: document.getElementById('closeModal'), openGoogle: document.getElementById('openGoogle'), openWaze: document.getElementById('openWaze'), openApple: document.getElementById('openApple'), startLabel: document.getElementById('startLabel'), useMyLocation: document.getElementById('useMyLocation'), startInput: document.getElementById('startInput'), showRoute: document.getElementById('showRoute'), showPlace: document.getElementById('showPlace'), routeHelp: document.getElementById('routeHelp'), routeFrame: document.getElementById('routeFrame'), modalWarn: document.getElementById('modalWarn'), modalWarnText: document.getElementById('modalWarnText')
+    navModal: document.getElementById('navModal'), mapAppChooser: document.getElementById('mapAppChooser'), dialogTitle: document.getElementById('dialogTitle'), dialogSubtitle: document.getElementById('dialogSubtitle'), closeModal: document.getElementById('closeModal'), openGoogle: document.getElementById('openGoogle'), openWaze: document.getElementById('openWaze'), openApple: document.getElementById('openApple'), startLabel: document.getElementById('startLabel'), useMyLocation: document.getElementById('useMyLocation'), startInput: document.getElementById('startInput'), showRoute: document.getElementById('showRoute'), showPlace: document.getElementById('showPlace'), routeHelp: document.getElementById('routeHelp'), routeFrame: document.getElementById('routeFrame'), modalWarn: document.getElementById('modalWarn'), modalWarnText: document.getElementById('modalWarnText')
   };
 
   function t(k){ return tr[lang][k] || k; }
@@ -297,40 +298,109 @@ function setLang(next){ lang = ['ar','fr','en'].includes(next) ? next : 'ar'; tr
   function phoneHref(p){ return `tel:${(p.phone||'').replace(/\s+/g,'')}`; }
   function mapEmbedPlace(query){ if(MAPS_KEY) return `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(MAPS_KEY)}&q=${encodeURIComponent(query)}`; return `about:blank`; }
   function mapEmbedDirections(origin, destination){ if(MAPS_KEY) return `https://www.google.com/maps/embed/v1/directions?key=${encodeURIComponent(MAPS_KEY)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&mode=driving`; return 'about:blank'; }
-  function navUrls(p, origin=''){ const query=pharmacyQuery(p);
-    const approvedPlaceId = p.locationVerified === true && /^[A-Za-z0-9_-]{10,160}$/.test(p.placeId || '') ? p.placeId : '';
-    const exactPin=p.locationVerified===true && p.lat != null && p.lng != null && Number.isFinite(Number(p.lat)) && Number.isFinite(Number(p.lng));
-    if(approvedPlaceId) return {
-      google: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(query)}&destination_place_id=${encodeURIComponent(approvedPlaceId)}&travelmode=driving`,
-      waze: `https://www.waze.com/ul?q=${encodeURIComponent(query)}`,
-      apple: `https://maps.apple.com/?q=${encodeURIComponent(query)}`
-    };
-    if(!exactPin) return {
-      google: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`,
-      waze: `https://www.waze.com/ul?q=${encodeURIComponent(query)}`,
-      apple: `https://maps.apple.com/?q=${encodeURIComponent(query)}`
-    };
-    const coords=`${p.lat},${p.lng}`;
+  function navUrls(p, origin=''){
+    const query=pharmacyQuery(p);
+    const exactPin=p.locationVerified===true && p.lat != null && p.lng != null
+      && Number.isFinite(Number(p.lat)) && Number.isFinite(Number(p.lng));
+    const placeId=p.locationVerified===true && /^[A-Za-z0-9_-]{10,160}$/.test(p.placeId||'') ? p.placeId : '';
+    if(exactPin){
+      const point=Number(p.lat)+','+Number(p.lng);
+      return {
+        google:'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(point)+'&travelmode=driving'+(origin?'&origin='+encodeURIComponent(origin):''),
+        waze:'https://www.waze.com/ul?ll='+encodeURIComponent(point)+'&navigate=yes',
+        apple:'https://maps.apple.com/?daddr='+encodeURIComponent(point)+'&dirflg=d'+(origin?'&saddr='+encodeURIComponent(origin):'')
+      };
+    }
+    if(placeId){
+      return {
+        google:'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(query)+'&destination_place_id='+encodeURIComponent(placeId)+'&travelmode=driving'+(origin?'&origin='+encodeURIComponent(origin):''),
+        waze:'https://www.waze.com/ul?q='+encodeURIComponent(query),
+        apple:'https://maps.apple.com/?q='+encodeURIComponent(query)
+      };
+    }
+    // Unverified destinations are SEARCH links, never exact driving guidance.
     return {
-      google: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(coords)}&travelmode=driving` + (origin ? `&origin=${encodeURIComponent(origin)}`:''),
-      waze: `https://www.waze.com/ul?ll=${coords}&navigate=yes`,
-      apple: `https://maps.apple.com/?daddr=${encodeURIComponent(coords)}&dirflg=d`
+      google:'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(query),
+      waze:'https://www.waze.com/ul?q='+encodeURIComponent(query),
+      apple:'https://maps.apple.com/?q='+encodeURIComponent(query)
     };
   }
   function reportMail(pharmacy){ return `mailto:${email}?subject=${encodeURIComponent('Khénifra Pharma report: '+pharmacy.name)}&body=${encodeURIComponent(`${t('reportMsg')}\n\nPharmacy: ${pharmacy.name}\nPhone: ${pharmacy.phone || '-'}\nAddress: ${pharmacy.address || '-'}\n`)}`; }
   function openMapInApp(p){ selectedMapPharmacy = p; switchTab('map'); renderMap(); bindActions(); window.scrollTo({top:0,behavior:'smooth'}); }
-  function openDirections(p){ modalPharmacy = p; els.navModal.classList.add('open'); els.navModal.setAttribute('aria-hidden','false'); els.dialogTitle.textContent = `${t('directions')} · ${p.name}`; els.dialogSubtitle.textContent = p.address || ''; els.startLabel.textContent = t('startPoint'); els.startInput.placeholder = t('startPlaceholder'); els.useMyLocation.textContent = t('useMyLocation'); els.showRoute.textContent = t('showRoute'); els.showPlace.textContent = t('showPlace'); els.routeHelp.textContent = t('routeHelp'); const warn = p.locationVerified !== true; els.modalWarn.style.display = warn ? 'flex' : 'none'; els.modalWarnText.textContent = warn ? (lang==='ar'?'الموقع المقترح مبني على اسم الصيدلية وعنوانها، وقد يحتاج تصحيحاً. تأكد من العلامة قبل التوجّه، وأبلغنا عن أي خطأ.':lang==='fr'?'L’emplacement proposé provient du nom et de l’adresse. Vérifiez le repère avant de partir et signalez toute erreur.':'Suggested location is based on the pharmacy name and address. Check the pin before travelling and report any error.') : t('modalWarn'); els.startInput.value=''; const urls = navUrls(p); els.openGoogle.textContent = 'Google Maps'; els.openWaze.textContent = 'Waze'; els.openApple.textContent = 'Apple Maps'; els.openGoogle.href = urls.google; els.openWaze.href = urls.waze; els.openApple.href = urls.apple; els.routeFrame.src = mapEmbedPlace(pharmacyQuery(p)); }
-  function closeModal(){ els.navModal.classList.remove('open'); els.navModal.setAttribute('aria-hidden','true'); }
-  function chooseMyLocation(){ if(!navigator.geolocation){ alert(lang==='ar'?'تحديد الموقع غير مدعوم على هذا الجهاز.':lang==='fr'?'La géolocalisation n’est pas disponible sur cet appareil.':'Location is not supported on this device.'); return; } navigator.geolocation.getCurrentPosition(pos=>{ currentCoords = `${pos.coords.latitude},${pos.coords.longitude}`; els.startInput.value = currentCoords; }, ()=> alert(lang==='ar'?'تعذر تحديد موقعك. تحقق من إذن الموقع.':lang==='fr'?'Impossible d’accéder à votre position. Vérifiez les autorisations.':'Unable to access your location. Check location permission.')); }
-  function showRoute(){ if(!modalPharmacy) return; const origin = (els.startInput.value || 'Khénifra, Morocco').trim(); const destination = pharmacyQuery(modalPharmacy); const urls = navUrls(modalPharmacy, origin); els.openGoogle.href = urls.google; els.openWaze.href = urls.waze; els.openApple.href = urls.apple; if(modalPharmacy.locationVerified===true && Number.isFinite(Number(modalPharmacy.lat)) && Number.isFinite(Number(modalPharmacy.lng))){ els.routeFrame.src=mapEmbedDirections(origin, modalPharmacy.lat+','+modalPharmacy.lng); } else { els.routeFrame.src=mapEmbedPlace(destination); els.routeHelp.textContent=lang==='ar'?'هذا موقع مقترح. تأكد من اسم الصيدلية والعنوان في نتائج الخريطة قبل بدء المسار.':lang==='fr'?'Emplacement suggéré. Vérifiez le nom et l’adresse de la pharmacie avant de lancer l’itinéraire.':'Suggested location. Verify the pharmacy name and address before starting navigation.'; } }
-  function showPlace(){ if(!modalPharmacy) return; els.routeFrame.src = mapEmbedPlace(pharmacyQuery(modalPharmacy)); }
+  function navigationMessage(kind){
+    const messages={
+      choose:{ar:'حدد نقطة الانطلاق باستعمال موقعك أو اكتب عنواناً، ثم اختر تطبيق الخرائط.',fr:'Localisez-vous ou saisissez une adresse de départ, puis choisissez une application.',en:'Use your location or enter a starting address, then choose a map app.'},
+      missing:{ar:'حدد موقعك أولاً أو أدخل عنوان الانطلاق لعرض التطبيقات.',fr:'Choisissez votre position ou entrez une adresse de départ.',en:'Use your location or enter a starting address first.'},
+      loading:{ar:'جارٍ تحديد موقعك…',fr:'Localisation en cours…',en:'Finding your location…'},
+      failed:{ar:'تعذر الوصول لموقعك. يمكنك كتابة عنوان الانطلاق ثم المتابعة.',fr:'Position indisponible. Saisissez une adresse de départ.',en:'Location unavailable. Enter a starting address instead.'},
+      ready:{ar:'تم تحديد نقطة الانطلاق. اختر Google Maps أو Waze أو Apple Maps. تحقق من موقع الصيدلية قبل التنقل.',fr:'Départ défini. Choisissez une application et vérifiez la pharmacie avant de partir.',en:'Start point set. Choose a map app, and verify the pharmacy before travelling.'},
+      search:{ar:'تنبيه: موقع الصيدلية غير مؤكد. الخيارات التالية تفتح بحثاً عن الصيدلية، وليس مساراً إلى إحداثيات معتمدة.',fr:'Attention : emplacement non confirmé. Ces liens recherchent la pharmacie, sans itinéraire précis vérifié.',en:'Caution: pharmacy location not confirmed. These links search for the pharmacy, not a verified exact route.'}
+    };return (messages[kind]||messages.choose)[lang];
+  }
+  function clearNavigationChoices(){
+    els.mapAppChooser.hidden=true;
+    for(const link of [els.openGoogle,els.openWaze,els.openApple]) link.removeAttribute('href');
+  }
+  function openDirections(p){
+    modalPharmacy=p; currentCoords=null; clearNavigationChoices();
+    els.navModal.classList.add('open'); els.navModal.setAttribute('aria-hidden','false');
+    els.dialogTitle.textContent=t('directions')+' · '+(p.nameAr||p.name);
+    els.dialogSubtitle.textContent=p.address||'';
+    els.startLabel.textContent=t('startPoint');
+    els.startInput.placeholder=t('startPlaceholder');
+    els.useMyLocation.textContent=t('useMyLocation');
+    els.showRoute.textContent=t('showRoute'); els.showPlace.textContent=t('showPlace');
+    els.routeHelp.textContent=navigationMessage('choose');
+    els.modalWarn.style.display=p.locationVerified===true?'none':'flex';
+    els.modalWarnText.textContent=navigationMessage('search');
+    els.startInput.value='';
+    els.routeFrame.src=MAPS_KEY?mapEmbedPlace(pharmacyQuery(p)):'about:blank';
+  }
+  function closeModal(){
+    modalPharmacy=null; currentCoords=null; clearNavigationChoices();
+    els.navModal.classList.remove('open'); els.navModal.setAttribute('aria-hidden','true');
+  }
+  function chooseMyLocation(){
+    if(!navigator.geolocation){els.routeHelp.textContent=navigationMessage('failed');return;}
+    const selected=modalPharmacy;
+    els.useMyLocation.disabled=true; els.routeHelp.textContent=navigationMessage('loading');
+    navigator.geolocation.getCurrentPosition(pos=>{
+      els.useMyLocation.disabled=false;
+      if(modalPharmacy!==selected || !selected)return;
+      const {latitude,longitude}=pos.coords;
+      if(!Number.isFinite(latitude)||!Number.isFinite(longitude)){els.routeHelp.textContent=navigationMessage('failed');return;}
+      currentCoords=latitude+','+longitude; els.startInput.value=currentCoords; showRoute();
+    },()=>{
+      els.useMyLocation.disabled=false;
+      if(modalPharmacy===selected) els.routeHelp.textContent=navigationMessage('failed');
+    },{enableHighAccuracy:false,timeout:12000,maximumAge:60000});
+  }
+  function showRoute(){
+    if(!modalPharmacy)return;
+    const origin=els.startInput.value.trim();
+    if(!origin){clearNavigationChoices();els.routeHelp.textContent=navigationMessage('missing');els.startInput.focus();return;}
+    const urls=navUrls(modalPharmacy,origin);
+    els.openGoogle.href=urls.google;els.openWaze.href=urls.waze;els.openApple.href=urls.apple;
+    els.mapAppChooser.hidden=false;
+    els.routeHelp.textContent=navigationMessage(modalPharmacy.locationVerified===true?'ready':'search');
+    if(MAPS_KEY && modalPharmacy.locationVerified===true && modalPharmacy.lat!=null && modalPharmacy.lng!=null && Number.isFinite(Number(modalPharmacy.lat)) && Number.isFinite(Number(modalPharmacy.lng))) {
+      els.routeFrame.src=mapEmbedDirections(origin,modalPharmacy.lat+','+modalPharmacy.lng);
+    }else{
+      els.routeFrame.src=MAPS_KEY?mapEmbedPlace(pharmacyQuery(modalPharmacy)):'about:blank';
+    }
+  }
+  function showPlace(){
+    if(!modalPharmacy)return;
+    els.routeFrame.src=MAPS_KEY?mapEmbedPlace(pharmacyQuery(modalPharmacy)):'about:blank';
+  }
   function badge(p){ return `<span class="badge ${p.verified ? 'ok':'warn'}">${p.verified ? t('verified') : t('unverified')}</span>`; }
+  function phoneStatus(p){return !p.phone ? '<div class="small" role="status">'+(lang==='ar'?'رقم الهاتف غير مؤكد. يمكنك الإبلاغ لتصحيحه.':lang==='fr'?'Téléphone non confirmé. Signalez une correction.':'Phone number not confirmed. Report a correction.')+'</div>' : ''; }
   function actionButtons(p){ return `<div class="actions">${p.phone?`<a class="btn primary" href="${phoneHref(p)}">☎ ${t('call')}</a>`:''}<button class="btn soft" data-action="directions" data-id="${escapeHtml(p.id || p.name)}">🧭 ${t('directions')}</button></div>`; }
   function smallActions(p){ return `<div class="share-line"><button class="pill" data-action="share-pharmacy" data-id="${escapeHtml(p.id || p.name)}">↗ ${eText('sharePharmacy')}</button></div>`+`<div class="mini-actions"><button class="btn soft" data-action="viewmap" data-id="${escapeHtml(p.id || p.name)}">🗺 ${t('viewOnMap')}</button><button class="btn" data-action="directions" data-id="${escapeHtml(p.id || p.name)}">🧭 ${t('openDirections')}</button>${p.phone?`<a class="btn primary" href="${phoneHref(p)}">☎ ${t('call')}</a>`:''}</div>`; }
   function shareButton(p){return `<div class="share-line"><button class="pill" data-action="share-pharmacy" data-id="${escapeHtml(p.id || p.name)}">↗ ${eText('sharePharmacy')}</button></div>`;}
   function extraDetails(p){ return shareButton(p)+`<details><summary>${t('extra')}</summary><div class="small"><b>${t('source')}:</b> ${escapeHtml(p.source || '-')}<br>${escapeHtml(p.address || '')}<br>${!p.verified ? '⚠ '+t('confirmBefore'):''}</div></details>`; }
   function feedbackRow(p){ return `<div class="feedback"><div class="small">${t('feedbackQ')}</div><div class="choices"><button class="pill" data-action="helpful">${t('yes')}</button><button class="pill" data-action="feedback" data-id="${escapeHtml(p.id || p.name)}">${t('report')}</button></div></div>`; }
-  function renderToday(){ const cards = (isNightShiftHours() ? [] : activeDutyPharmacies()).map(p=>`<article class="card"><div class="card-top"><div><div class="badge ok">${t('weekGuardLabel')}</div><div class="name">${escapeHtml(p.nameAr || p.name)}</div></div>${badge(p)}</div><div class="pharmacy">${escapeHtml(p.nameAr || p.name)}<div class="name-fr" lang="fr">${escapeHtml(p.nameFr || ("Pharmacie "+(p.name || "")))}</div></div><div class="address">${escapeHtml(p.address)}</div>${p.phone?`<div class="phone">☎ ${escapeHtml(p.phone)}</div>`:''}${actionButtons(p)}${feedbackRow(p)}${extraDetails(p)}</article>`).join(''); const night = getTodayNight(); const nightCard = night ? `<article class="card night-card"><div class="night-label">${t('nightBadge')}</div><div class="card-top"><div><div class="badge ok">${t('tonight')}</div><div class="name">${escapeHtml(night.nameAr || night.name)}</div></div>${badge(night)}</div><div class="pharmacy">${escapeHtml(night.nameAr || night.name)}<div class="name-fr" lang="fr">${escapeHtml(night.nameFr || night.name || "")}</div></div><div class="address">${formatDate(night.date)}<br>${escapeHtml(night.address)}</div>${night.phone?`<div class="phone">☎ ${escapeHtml(night.phone)}</div>`:night.phoneNeedsReview?`<div class="small">${lang==='ar'?'رقم الهاتف قيد التحقق':lang==='fr'?'Numéro de téléphone en cours de vérification':'Phone number under review'}</div>`:''}${actionButtons(night)}${feedbackRow(night)}${extraDetails(night)}</article>` : '';
+  function renderToday(){ const cards = (isNightShiftHours() ? [] : activeDutyPharmacies()).map(p=>`<article class="card"><div class="card-top"><div><div class="badge ok">${t('weekGuardLabel')}</div><div class="name">${escapeHtml(p.nameAr || p.name)}</div></div>${badge(p)}</div><div class="pharmacy">${escapeHtml(p.nameAr || p.name)}<div class="name-fr" lang="fr">${escapeHtml(p.nameFr || ("Pharmacie "+(p.name || "")))}</div></div><div class="address">${escapeHtml(p.address)}</div>${p.phone?`<div class="phone">☎ ${escapeHtml(p.phone)}</div>`:''}${phoneStatus(p)}${actionButtons(p)}${feedbackRow(p)}${extraDetails(p)}</article>`).join(''); const night = getTodayNight(); const nightCard = night ? `<article class="card night-card"><div class="night-label">${t('nightBadge')}</div><div class="card-top"><div><div class="badge ok">${t('tonight')}</div><div class="name">${escapeHtml(night.nameAr || night.name)}</div></div>${badge(night)}</div><div class="pharmacy">${escapeHtml(night.nameAr || night.name)}<div class="name-fr" lang="fr">${escapeHtml(night.nameFr || night.name || "")}</div></div><div class="address">${formatDate(night.date)}<br>${escapeHtml(night.address)}</div>${night.phone?`<div class="phone">☎ ${escapeHtml(night.phone)}</div>`:night.phoneNeedsReview?`<div class="small">${lang==='ar'?'رقم الهاتف قيد التحقق':lang==='fr'?'Numéro de téléphone en cours de vérification':'Phone number under review'}</div>`:''}${actionButtons(night)}${feedbackRow(night)}${extraDetails(night)}</article>` : '';
     const expired=!currentWeek.start || isoToday()>currentWeek.end;
     const emptyMessage=lang==='ar' ? 'انتهى جدول الحراسة الأسبوعية المنشور. سنعرض الصيدليات الجديدة بعد التأكد من البرنامج المحدث. يرجى الاتصال بالصيدلية أو التحقق محلياً قبل التنقل.' : lang==='fr' ? 'Le planning hebdomadaire publié est terminé. Les nouvelles pharmacies seront affichées après vérification du planning actualisé. Confirmez localement avant de vous déplacer.' : 'The published weekly duty schedule has ended. New duty pharmacies will appear after the updated schedule is verified. Please check locally before travelling.';
     const weekLabel=expired ? (lang==='ar' ? 'تحديث الحراسة الأسبوعية مطلوب' : lang==='fr' ? 'Mise à jour de la garde hebdomadaire nécessaire' : 'Weekly duty update needed') : t('weekSubtitle')+' · '+currentWeek.start+' – '+currentWeek.end;
@@ -362,7 +432,7 @@ function setLang(next){ lang = ['ar','fr','en'].includes(next) ? next : 'ar'; tr
     const q = focus ? pharmacyQuery(focus) : 'Khénifra, Morocco';
     const frameSrc = MAPS_KEY ? mapEmbedPlace(q) : 'about:blank';
     const currentList = activeDutyPharmacies();
-    const cards = currentList.map(p=>`<article class="mini-card"><div class="mini-title"><b>${escapeHtml(p.nameAr || p.name)}</b>${badge(p)}</div><div class="small">${escapeHtml(p.address || '')}</div>${p.phone?`<div class="small">☎ ${escapeHtml(p.phone)}</div>`:''}<div class="small">${lang==='ar'?'موقع مقترح من الاسم والعنوان، تحقق قبل التنقل':lang==='fr'?'Emplacement suggéré, à vérifier avant le trajet':'Suggested location, verify before travelling'}</div>${smallActions(p)}${feedbackRow(p)}</article>`).join('');
+    const cards = currentList.map(p=>`<article class="mini-card"><div class="mini-title"><b>${escapeHtml(p.nameAr || p.name)}</b>${badge(p)}</div><div class="small">${escapeHtml(p.address || '')}</div>${p.phone?`<div class="small">☎ ${escapeHtml(p.phone)}</div>`:''}${phoneStatus(p)}<div class="small">${lang==='ar'?'موقع مقترح من الاسم والعنوان، تحقق قبل التنقل':lang==='fr'?'Emplacement suggéré, à vérifier avant le trajet':'Suggested location, verify before travelling'}</div>${smallActions(p)}${feedbackRow(p)}</article>`).join('');
     els.map.innerHTML = `<div class="panel"><div class="section-title"><div><h2>${t('mapTitle')}</h2><p>${t('mapSubtitle')}</p></div></div><div class="map-shell"><div class="map-card"><iframe class="map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="${frameSrc}"></iframe></div><div class="list-stack">${cards}</div></div></div>`;
   }
   function renderInfo(){ els.info.innerHTML = `<div class="panel"><div class="section-title"><div><h2>${t('ownerPolicyTitle')}</h2><p>${t('ownerPolicyBody')}</p></div></div><p class="small">${t('noticeBody')}</p></div>`; }
@@ -421,7 +491,7 @@ function setLang(next){ lang = ['ar','fr','en'].includes(next) ? next : 'ar'; tr
   });
   document.querySelectorAll('.tabs button').forEach(btn=> btn.addEventListener('click', ()=> switchTab(btn.dataset.tab)));
   els.lang.addEventListener('change', e=> setLang(e.target.value));
-  els.closeModal.addEventListener('click', closeModal); els.navModal.addEventListener('click', e=>{ if(e.target===els.navModal) closeModal(); }); els.useMyLocation.addEventListener('click', chooseMyLocation); els.showRoute.addEventListener('click', showRoute); els.showPlace.addEventListener('click', showPlace); els.copyContact.addEventListener('click', async ()=>{ try{ await navigator.clipboard.writeText(email); const old=els.copyContact.textContent; els.copyContact.textContent=t('copied'); setTimeout(()=>els.copyContact.textContent=t('copyContact'),1200);}catch(e){window.prompt('Copy email', email);} });
+  els.closeModal.addEventListener('click', closeModal); els.navModal.addEventListener('click', e=>{ if(e.target===els.navModal) closeModal(); }); els.useMyLocation.addEventListener('click', chooseMyLocation); els.startInput.addEventListener('input',()=>{currentCoords=null;clearNavigationChoices();els.routeHelp.textContent=navigationMessage('choose');}); els.showRoute.addEventListener('click', showRoute); els.showPlace.addEventListener('click', showPlace); els.copyContact.addEventListener('click', async ()=>{ try{ await navigator.clipboard.writeText(email); const old=els.copyContact.textContent; els.copyContact.textContent=t('copied'); setTimeout(()=>els.copyContact.textContent=t('copyContact'),1200);}catch(e){window.prompt('Copy email', email);} });
 
   async function loadWeek(){
     try {
