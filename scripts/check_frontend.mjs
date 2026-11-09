@@ -168,4 +168,40 @@ assert.equal(nightEnv.snapshot().nightSchedule.length,0,'Null night must not be 
 assert.ok(text.includes("const nightCard = '';"),'Daytime weekly cards must not embed a night duty card');
 assert.ok(!text.includes('لم نتوصل بعد بجدول الحراسة الليلية المحدّث بعد 1 نونبر 2026'),'Outdated night unavailable message remains');
 assert.ok(text.includes('function expectedNightDate('),'Night date validity gate missing');
+// Execute the real map renderer rather than merely checking its source text.
+const mapStart=text.indexOf('function renderMap(){');
+const mapEnd=text.indexOf('function renderInfo(){',mapStart);
+assert.ok(mapStart>0&&mapEnd>mapStart,'Map render function missing');
+const mapEl={innerHTML:''};
+const fakeWeekly=[
+ {id:'week-amalou',nameAr:'صيدلية أمالو',nameFr:'Pharmacie Amalou',address:'',phone:''},
+ {id:'week-najah',nameAr:'صيدلية النجاح',nameFr:'Pharmacie Annajah',address:'حي النجاح',phone:'0535384545'}
+];
+let activeMapCards=fakeWeekly;
+const mapContext={
+ activeDutyPharmacies:()=>activeMapCards,
+ selectedMapPharmacy:null,
+ pharmacyQuery:p=>p.nameFr,
+ MAPS_KEY:'',
+ mapEmbedPlace:p=>p,
+ escapeHtml:x=>String(x||'').replaceAll('&','&amp;'),
+ badge:()=>'<span class="badge">Unverified</span>',
+ addressStatus:p=>!p.address?'Address under review':'',
+ phoneStatus:p=>!p.phone?'Phone under review':'',
+ smallActions:()=>'<button>Directions</button>',
+ feedbackRow:()=>'<button>Report</button>',
+ lang:'ar',
+ els:{map:mapEl},
+ t:key=>key
+};
+const mapRenderer=vm.runInNewContext(text.slice(mapStart,mapEnd)+';renderMap',mapContext);
+mapRenderer();
+assert.ok(mapEl.innerHTML.includes('صيدلية أمالو') && mapEl.innerHTML.includes('صيدلية النجاح'),
+ 'Daytime map must render both weekly pharmacies');
+assert.equal((mapEl.innerHTML.match(/class="mini-card"/g)||[]).length,2,'Map needs two cards in daytime');
+activeMapCards=[{id:'night-07',nameAr:'صيدلية الزرقطوني',nameFr:'Pharmacie Zerktouni',address:'حي لاسيري',phone:'0768688461'}];
+mapRenderer();
+assert.equal((mapEl.innerHTML.match(/class="mini-card"/g)||[]).length,1,'Map needs one active night card');
+assert.ok(mapEl.innerHTML.includes('صيدلية الزرقطوني'),'Night map must show correct duty pharmacy');
+assert.ok(!mapEl.innerHTML.includes('صيدلية أمالو'),'Daytime pharmacy must not persist in night map');
 console.log('PASS: HTML JS, three-language key parity, privacy page, Morocco timezone, no embedded map key');
