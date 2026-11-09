@@ -46,6 +46,20 @@ class PreMobileBoundaryTests(unittest.TestCase):
             self.assertEqual(ids, ["week-jabor", "week-touhami"])
             self.assertEqual(len(set(ids)), 2)
 
+    def test_weekly_missing_contact_is_explicit_and_never_invented(self):
+        week = [["2026-11-09", "2026-11-15", "AMALOU", "NAJAH"]]
+        env = {"WEEKLY_ROTATION_JSON": json.dumps(week),
+               "NIGHT_ROTATION_JSON": json.dumps(rotation()),
+               "VERIFIED_PHARMACY_PLACES_JSON": "{}"}
+        with patch.dict(os.environ, env):
+            data = get_current_week(datetime(2026, 11, 9, 14, tzinfo=TZ))
+            amalou = data["pharmacies"][0]
+            self.assertEqual(amalou["nameAr"], "صيدلية أمالو")
+            self.assertEqual(amalou["phone"], "")
+            self.assertTrue(amalou["phoneNeedsReview"])
+            self.assertTrue(amalou["addressNeedsReview"])
+            self.assertEqual(amalou["address"], "")
+
     def test_weekly_expiry(self):
         env = {"WEEKLY_ROTATION_JSON": json.dumps([["2026-11-02", "2026-11-08", "JABOR", "TOUHAMI"]]),
                "NIGHT_ROTATION_JSON": "[]"}
