@@ -9,6 +9,9 @@ CHECKS = [
     ("/", "text/html"),
     ("/privacy.html", "text/html"),
     ("/manifest.webmanifest", "application/manifest+json"),
+    ("/icons/icon-180.png", "image/png"),
+    ("/icons/icon-192.png", "image/png"),
+    ("/icons/icon-512.png", "image/png"),
     ("/api/week/current", "application/json"),
     ("/api/night/current", "application/json"),
 ]
@@ -29,6 +32,13 @@ def check(path, expected):
             raise AssertionError(f"{path}: content type {ctype}")
         data = json.loads(body)
         assert data["start_url"] == "/" and data["display"] == "standalone"
+    elif expected == "image/png":
+        if ctype != expected:
+            raise AssertionError(f"{path}: content type {ctype}")
+        assert body[:8] == b"\\x89PNG\\r\\n\\x1a\\n", f"{path}: not a PNG"
+        size = int(path.rsplit("-", 1)[1].split(".", 1)[0])
+        assert int.from_bytes(body[16:20], "big") == size, f"{path}: wrong width"
+        assert int.from_bytes(body[20:24], "big") == size, f"{path}: wrong height"
     elif expected == "application/json":
         if ctype != expected:
             raise AssertionError(f"{path}: content type {ctype}")
@@ -39,6 +49,10 @@ def check(path, expected):
         if ctype != expected:
             raise AssertionError(f"{path}: content type {ctype}")
         assert b"<html" in body.lower(), f"{path}: HTML not returned"
+        if path == "/":
+            assert b"Kh" in body and b"manifest.webmanifest" in body, f"{path}: app shell missing"
+        if path == "/privacy.html":
+            assert b'id="policy"' in body, f"{path}: policy content missing"
     print(f"PASS {path}: HTTP {status} {ctype} (anonymous)")
 
 if __name__ == "__main__":
