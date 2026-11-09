@@ -98,4 +98,7 @@ assert.ok(exact.waze.includes('ll='),'Verified Waze should use coordinates');
 assert.ok(exact.apple.includes('daddr='),'Verified Apple directions must have destination');
 assert.ok(text.includes('addressStatus(p)'), 'Missing pharmacy address must have a visible review label');
 assert.ok(text.includes('phoneStatus(p)'), 'Missing pharmacy phone must have a visible review label');
+assert.ok(text.includes('.app > .banner{background:#fff0f0;border:2px solid #c83737'), 'Top warning must have high-visibility red styling');
+assert.ok(text.includes('candidatePhoneStatus(p)'), 'Candidate phone should show in pharmacy cards');
+assert.ok(text.includes('phoneCandidateNeedsReview'), 'Candidate phone must remain clearly flagged');
 console.log('PASS: HTML JS, three-language key parity, privacy page, Morocco timezone, no embedded map key');
