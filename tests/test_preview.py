@@ -27,7 +27,8 @@ def sample_rotation():
 class PreviewTests(unittest.TestCase):
     def test_without_rotation(self):
         with patch.dict(os.environ, {"NIGHT_ROTATION_JSON": ""}):
-            self.assertIsNone(get_duty(datetime(2026, 11, 3, 22, tzinfo=TZ)))
+            with self.assertRaisesRegex(RuntimeError, "Night rotation unavailable"):
+                get_duty(datetime(2026, 11, 3, 22, tzinfo=TZ))
 
     def test_night_schedule_and_seasonal_disclaimer(self):
         with patch.dict(os.environ, {"NIGHT_ROTATION_JSON": json.dumps(sample_rotation())}):
