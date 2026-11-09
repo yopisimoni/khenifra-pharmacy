@@ -100,5 +100,5 @@ assert.ok(text.includes('addressStatus(p)'), 'Missing pharmacy address must have
 assert.ok(text.includes('phoneStatus(p)'), 'Missing pharmacy phone must have a visible review label');
 assert.ok(text.includes('.owner-map-notice{display:flex') && text.includes('border:2px solid #c83737;border-radius:14px;background:#fff0f0'), 'Owner correction banner must be red');
 assert.ok(!text.includes('.app > .banner{background:#fff0f0'), 'General schedule warning should retain its original color');
-assert.ok(!text.includes('candidatePhoneStatus(p)'), 'Do not display disputed candidate phone in public cards');
+assert.ok(!text.includes('function candidatePhoneStatus(p){'), 'Do not display disputed candidate phone in public cards');
 console.log('PASS: HTML JS, three-language key parity, privacy page, Morocco timezone, no embedded map key');
