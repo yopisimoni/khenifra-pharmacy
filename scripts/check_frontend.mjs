@@ -128,4 +128,44 @@ await weeklyEnv.loadWeek();
 assert.equal(weeklyEnv.snapshot().weeklyPharmacies.length,0,'Expired weekly rota must never persist');
 assert.equal(weeklyEnv.snapshot().weeklyLoadError,true,'Expiry without fresh data must show error state');
 assert.ok(text.includes("const emptyCard= !cards && !isNightShiftHours()"),'Night card must not hide missing weekly schedule warning');
+// Execute the current night loader, including a stale response and a transient outage.
+const nightStart=text.indexOf('async function loadNight(){');
+const nightEnd=text.indexOf("document.getElementById('shareAppBtn')",nightStart);
+assert.ok(nightStart>0 && nightEnd>nightStart,'Night loader missing');
+let todayNightDate='2026-11-09',mode='ok',nightRenders=0;
+let pendingNightResponse=null;
+const nightEntry={id:'night-07',date:'2026-11-09',nameAr:'صيدلية اختبار',phone:'',address:'خنيفرة'};
+const nightEnv=vm.runInNewContext(`let nightRequestId=0,nightLoadError=false,nightSchedule=[];
+${text.slice(nightStart,nightEnd)}
+({loadNight,snapshot:()=>({nightSchedule,nightLoadError})})`,{
+  fetch:async()=>{if(mode==='error')throw Error('temporary');
+    if(mode==='pending')return new Promise(resolve=>{pendingNightResponse=resolve});
+    return {ok:true,json:async()=>({pharmacy:mode==='null'?null:nightEntry})};
+  },
+  expectedNightDate:()=>todayNightDate,
+  renderAll:()=>{nightRenders++},
+  console:{warn:()=>{}}
+});
+await nightEnv.loadNight();
+assert.equal(nightEnv.snapshot().nightSchedule.length,1,'Night loader lost valid duty');
+mode='pending';
+const oldRequest=nightEnv.loadNight();
+mode='ok';
+await nightEnv.loadNight();
+pendingNightResponse({ok:true,json:async()=>({pharmacy:{...nightEntry,nameAr:'نتيجة قديمة'}})});
+await oldRequest;
+assert.equal(nightEnv.snapshot().nightSchedule[0].nameAr,'صيدلية اختبار','Late night response overwrote newer data');
+mode='error';
+await nightEnv.loadNight();
+assert.equal(nightEnv.snapshot().nightSchedule.length,1,'Transient outage erased date-valid night duty');
+todayNightDate='2026-11-10';
+await nightEnv.loadNight();
+assert.equal(nightEnv.snapshot().nightSchedule.length,0,'Previous night must not persist after duty date changes');
+assert.equal(nightEnv.snapshot().nightLoadError,true,'Night error must be reported');
+mode='null';
+await nightEnv.loadNight();
+assert.equal(nightEnv.snapshot().nightSchedule.length,0,'Null night must not be shown');
+assert.ok(text.includes("const nightCard = '';"),'Daytime weekly cards must not embed a night duty card');
+assert.ok(!text.includes('لم نتوصل بعد بجدول الحراسة الليلية المحدّث بعد 1 نونبر 2026'),'Outdated night unavailable message remains');
+assert.ok(text.includes('function expectedNightDate('),'Night date validity gate missing');
 console.log('PASS: HTML JS, three-language key parity, privacy page, Morocco timezone, no embedded map key');

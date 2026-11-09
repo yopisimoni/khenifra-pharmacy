@@ -21,7 +21,7 @@ def get_duty(now=None):
         return None
     raw = os.environ.get("NIGHT_ROTATION_JSON", "")
     if not raw:
-        return None
+        raise RuntimeError("Night rotation unavailable")
     records = json.loads(raw)
     if len(records) != CYCLE_LENGTH:
         raise RuntimeError("Night rotation must contain exactly 40 entries")
