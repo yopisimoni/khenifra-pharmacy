@@ -61,4 +61,11 @@ assert.ok(worker.includes("request.mode !== 'navigate'"),'Offline fallback appli
 assert.ok(text.includes('rel="manifest"'), 'PWA manifest missing from HTML');
 assert.ok(text.includes("serviceWorker.register('/sw.js')"),'Offline worker not registered');
 assert.ok(fs.readFileSync('offline.html','utf8').includes('لا يمكن التأكد'), 'Offline warning must explain duty cannot be confirmed');
+assert.ok(text.includes('class="owner-map-notice"'),'Owner map correction banner missing');
+assert.ok(text.includes('updateOwnerMapNotice();'),'Owner map notice must update with language');
+assert.ok(text.includes("simohamed.amara@gmail.com"),'Current contact email must be present');
+for (const locale of ['ar:{text:', 'fr:{text:', 'en:{text:']) {
+  assert.ok(text.includes(locale),'Owner map notice missing translation '+locale);
+}
+assert.ok(text.includes("link.href='mailto:'+email+'?subject='+encodeURIComponent(copy.subject)"),'Correction action should open email with localized subject');
 console.log('PASS: HTML JS, three-language key parity, privacy page, Morocco timezone, no embedded map key');
