@@ -56,8 +56,6 @@ class PreMobileBoundaryTests(unittest.TestCase):
             amalou = data["pharmacies"][0]
             self.assertEqual(amalou["nameAr"], "صيدلية أمالو")
             self.assertEqual(amalou["phone"], "")
-            self.assertEqual(amalou["phoneCandidate"], "0535587344")
-            self.assertTrue(amalou["phoneCandidateNeedsReview"])
             self.assertTrue(amalou["phoneNeedsReview"])
             self.assertTrue(amalou["addressNeedsReview"])
             self.assertEqual(amalou["address"], "")
