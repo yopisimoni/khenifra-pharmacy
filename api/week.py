@@ -61,6 +61,7 @@ def current_week_pharmacy(key, index, lookup):
     approved = json.loads(os.environ.get("VERIFIED_PHARMACY_PLACES_JSON", "{}"))
     candidate = approved.get(WEEK_TO_NIGHT.get(key, ""), {})
     place_id = candidate.get("placeId", "") if isinstance(candidate, dict) else ""
+    phone_candidate = "0535587344" if key == "AMALOU" and not data.get("phone") else ""
     return {
         "placeId": place_id,
         "locationVerified": bool(place_id),
@@ -69,6 +70,8 @@ def current_week_pharmacy(key, index, lookup):
         "nameAr": NAMES.get(key, key),
         "nameFr": name_fr,
         "phone": data.get("phone", ""),
+        "phoneCandidate": phone_candidate,
+        "phoneCandidateNeedsReview": bool(phone_candidate),
         "phoneNeedsReview": not bool(data.get("phone", "").strip()),
         "address": data.get("address", ""),
         "addressNeedsReview": not bool(data.get("address", "").strip()),
