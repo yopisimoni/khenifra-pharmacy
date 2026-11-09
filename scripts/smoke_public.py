@@ -45,6 +45,17 @@ def check(path, expected):
         data = json.loads(body)
         key = "week" if path.startswith("/api/week") else "pharmacy"
         assert key in data, f"{path}: missing {key}"
+        if key == "pharmacy":
+            from datetime import datetime, timedelta
+            from zoneinfo import ZoneInfo
+            now = datetime.now(ZoneInfo("Africa/Casablanca"))
+            duty_date = now.date() - (timedelta(days=1) if now.hour < 9 else timedelta())
+            if duty_date.isoformat() >= "2026-11-03":
+                pharmacy = data["pharmacy"]
+                assert isinstance(pharmacy, dict), f"{path}: missing night-duty payload"
+                assert pharmacy.get("date") == duty_date.isoformat(), f"{path}: stale or future night duty date"
+                assert pharmacy.get("nameAr") and pharmacy.get("id"), f"{path}: incomplete night-duty identity"
+                print(f"PASS {path}: dated night duty present for {duty_date.isoformat()} (identity not logged)")
         if key == "week":
             from datetime import datetime
             from zoneinfo import ZoneInfo
