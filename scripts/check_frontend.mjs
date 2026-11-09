@@ -52,7 +52,9 @@ assert.ok(text.includes("lastDutyPeriod"),'Duty should refresh across shift chan
 const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
 assert.equal(manifest.display,'standalone');
 assert.equal(manifest.start_url,'/');
-assert.ok(manifest.icons.some(i=>i.src==='/icons/pharmacy.svg'));
+assert.ok(manifest.icons.some(i=>i.src==='/icons/icon-192.png' && i.sizes==='192x192'));
+assert.ok(manifest.icons.some(i=>i.src==='/icons/icon-512.png' && i.sizes==='512x512'));
+assert.ok(text.includes('rel="apple-touch-icon"'), 'iOS home screen icon missing');
 assert.ok(fs.readFileSync('icons/pharmacy.svg','utf8').includes('<svg'));
 const worker=fs.readFileSync('sw.js','utf8');
 new vm.Script(worker,{filename:'sw.js'});
