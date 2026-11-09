@@ -96,4 +96,6 @@ const exact=nav(confirmed,'32.93,-5.65');
 assert.ok(exact.google.includes('/maps/dir/')&&exact.google.includes('origin='),'Exact Google directions must include origin');
 assert.ok(exact.waze.includes('ll='),'Verified Waze should use coordinates');
 assert.ok(exact.apple.includes('daddr='),'Verified Apple directions must have destination');
+assert.ok(text.includes('addressStatus(p)'), 'Missing pharmacy address must have a visible review label');
+assert.ok(text.includes('phoneStatus(p)'), 'Missing pharmacy phone must have a visible review label');
 console.log('PASS: HTML JS, three-language key parity, privacy page, Morocco timezone, no embedded map key');
