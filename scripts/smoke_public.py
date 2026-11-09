@@ -45,6 +45,18 @@ def check(path, expected):
         data = json.loads(body)
         key = "week" if path.startswith("/api/week") else "pharmacy"
         assert key in data, f"{path}: missing {key}"
+        if key == "week":
+            from datetime import datetime
+            from zoneinfo import ZoneInfo
+            today = datetime.now(ZoneInfo("Africa/Casablanca")).date().isoformat()
+            # The weekly rota is stored in production for the period ending 2027-01-31.
+            # If this period is active, an empty API response is a production defect.
+            if "2026-11-09" <= today <= "2027-01-31":
+                week = data["week"]
+                assert isinstance(week, dict), f"{path}: empty weekly duty despite configured period, local date {today}"
+                assert week.get("start", "") <= today <= week.get("end", ""), f"{path}: weekly duty dates do not include {today}"
+                assert len(week.get("pharmacies", [])) == 2, f"{path}: expected two scheduled duty pharmacies"
+                print(f"PASS {path}: current-week payload present for {today} ({len(week['pharmacies'])} pharmacies)")
     else:
         if ctype != expected:
             raise AssertionError(f"{path}: content type {ctype}")
