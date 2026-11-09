@@ -44,7 +44,7 @@ for(const [timestamp,night] of [
  ['2026-11-04T19:59:00Z',false],// 20:59 Morocco
  ['2026-11-04T20:00:00Z',true], // 21:00 Morocco
  ['2026-11-04T23:15:00Z',true], // after midnight Morocco
-]) assert.equal(shiftHelpers.isNightShiftHours(new Date(timestamp)),night,'Duty boundary '+timestamp);
+]) assert.equal(shiftHelpers.isNightShiftHours(new Date(timestamp)),night,'Duty boundary '+timestamp+' Casablanca hour='+new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Casablanca',hour:'2-digit',hourCycle:'h23'}).format(new Date(timestamp)) );
 assert.ok(text.includes('const currentList = activeDutyPharmacies();'),'Map should show only active duty pharmacies');
 assert.ok(text.includes('els.tabToday.hidden=nighttime'),'Day pharmacy tab must be hidden at night');
 assert.ok(text.includes("if(tab==='today' && isNightShiftHours()) tab='night'"),'Night must not show daytime tab');
