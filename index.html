@@ -212,6 +212,8 @@
   const contactPhone = '+212620142441';
   let currentWeek = {start:'', end:''};
   let weeklyPharmacies = [];
+  let weeklyLoadError = false;
+  let weekRequestId = 0;
   // From the user-provided C.R.P.O.S. 2026 holiday schedule. Unconfirmed religious dates remain flagged.
   const holidaySchedule = [
     {date:'2026-01-11', ar:'مناسبة وطنية',fr:'Fête nationale', en:'National holiday', names:[], regular:true},
@@ -404,8 +406,8 @@ function setLang(next){ lang = ['ar','fr','en'].includes(next) ? next : 'ar'; tr
   function renderToday(){ const cards = (isNightShiftHours() ? [] : activeDutyPharmacies()).map(p=>`<article class="card"><div class="card-top"><div><div class="badge ok">${t('weekGuardLabel')}</div><div class="name">${escapeHtml(p.nameAr || p.name)}</div></div>${badge(p)}</div><div class="pharmacy">${escapeHtml(p.nameAr || p.name)}<div class="name-fr" lang="fr">${escapeHtml(p.nameFr || ("Pharmacie "+(p.name || "")))}</div></div><div class="address">${escapeHtml(p.address)}</div>${addressStatus(p)}${p.phone?`<div class="phone">☎ ${escapeHtml(p.phone)}</div>`:''}${phoneStatus(p)}${actionButtons(p)}${feedbackRow(p)}${extraDetails(p)}</article>`).join(''); const night = getTodayNight(); const nightCard = night ? `<article class="card night-card"><div class="night-label">${t('nightBadge')}</div><div class="card-top"><div><div class="badge ok">${t('tonight')}</div><div class="name">${escapeHtml(night.nameAr || night.name)}</div></div>${badge(night)}</div><div class="pharmacy">${escapeHtml(night.nameAr || night.name)}<div class="name-fr" lang="fr">${escapeHtml(night.nameFr || night.name || "")}</div></div><div class="address">${formatDate(night.date)}<br>${escapeHtml(night.address)}</div>${night.phone?`<div class="phone">☎ ${escapeHtml(night.phone)}</div>`:night.phoneNeedsReview?`<div class="small">${lang==='ar'?'رقم الهاتف قيد التحقق':lang==='fr'?'Numéro de téléphone en cours de vérification':'Phone number under review'}</div>`:''}${actionButtons(night)}${feedbackRow(night)}${extraDetails(night)}</article>` : '';
     const expired=!currentWeek.start || isoToday()>currentWeek.end;
     const emptyMessage=lang==='ar' ? 'انتهى جدول الحراسة الأسبوعية المنشور. سنعرض الصيدليات الجديدة بعد التأكد من البرنامج المحدث. يرجى الاتصال بالصيدلية أو التحقق محلياً قبل التنقل.' : lang==='fr' ? 'Le planning hebdomadaire publié est terminé. Les nouvelles pharmacies seront affichées après vérification du planning actualisé. Confirmez localement avant de vous déplacer.' : 'The published weekly duty schedule has ended. New duty pharmacies will appear after the updated schedule is verified. Please check locally before travelling.';
-    const weekLabel=expired ? (lang==='ar' ? 'تحديث الحراسة الأسبوعية مطلوب' : lang==='fr' ? 'Mise à jour de la garde hebdomadaire nécessaire' : 'Weekly duty update needed') : t('weekSubtitle')+' · '+currentWeek.start+' – '+currentWeek.end;
-    const emptyCard= !cards && !nightCard ? `<div class="empty" role="status">${emptyMessage}</div>` : '';
+    const weekLabel=expired ? (weeklyLoadError ? (lang==='ar'?'تعذر تحميل برنامج الحراسة الأسبوعية':lang==='fr'?'Impossible de charger la garde hebdomadaire':'Unable to load weekly duty') : (lang==='ar'?'تحديث الحراسة الأسبوعية مطلوب':lang==='fr'?'Mise à jour de la garde hebdomadaire nécessaire':'Weekly duty update needed')) : t('weekSubtitle')+' · '+currentWeek.start+' – '+currentWeek.end;
+    const emptyCard= !cards && !isNightShiftHours() ? `<div class="empty" role="status">${weeklyLoadError ? (lang==='ar'?'تعذر تحميل صيدليات الحراسة الأسبوعية حالياً. أعد المحاولة بعد تحديث الصفحة، وتحقق محلياً قبل التنقل.':lang==='fr'?'Impossible de charger les pharmacies de garde hebdomadaire. Réessayez, puis confirmez localement avant de vous déplacer.':'Weekly duty pharmacies could not be loaded. Retry and verify locally before travelling.') : emptyMessage}</div>` : '';
     els.today.innerHTML = `<div class="panel"><div class="section-title"><div><h2>${t('weekTitle')}</h2><p>${weekLabel}</p></div><span class="badge">${t('currentWeekOnly')}</span></div><div class="cards">${cards}${nightCard}${emptyCard}</div></div>`;
   }
   function renderNight(){
@@ -495,19 +497,40 @@ function setLang(next){ lang = ['ar','fr','en'].includes(next) ? next : 'ar'; tr
   els.closeModal.addEventListener('click', closeModal); els.navModal.addEventListener('click', e=>{ if(e.target===els.navModal) closeModal(); }); els.useMyLocation.addEventListener('click', chooseMyLocation); els.startInput.addEventListener('input',()=>{currentCoords=null;clearNavigationChoices();els.routeHelp.textContent=navigationMessage('choose');}); els.showRoute.addEventListener('click', showRoute); els.showPlace.addEventListener('click', showPlace); els.copyContact.addEventListener('click', async ()=>{ try{ await navigator.clipboard.writeText(email); const old=els.copyContact.textContent; els.copyContact.textContent=t('copied'); setTimeout(()=>els.copyContact.textContent=t('copyContact'),1200);}catch(e){window.prompt('Copy email', email);} });
 
   async function loadWeek(){
+    const requestId=++weekRequestId;
     try {
       const res=await fetch('/api/week/current',{cache:'no-store'});
       if(!res.ok) throw new Error('Weekly schedule unavailable');
       const data=await res.json();
+      if(requestId!==weekRequestId)return;
       const week=data.week;
-      currentWeek=week?{start:week.start,end:week.end}:{start:'',end:''};
-      weeklyPharmacies=week?week.pharmacies:[];
+      const today=isoToday();
+      // Reject stale, malformed and out-of-range duty weeks.
+      const valid=week && typeof week.start==='string' && typeof week.end==='string'
+        && week.start<=today && today<=week.end && Array.isArray(week.pharmacies)
+        && week.pharmacies.length>0;
+      if(valid){
+        currentWeek={start:week.start,end:week.end};
+        weeklyPharmacies=week.pharmacies;
+        weeklyLoadError=false;
+      }else{
+        // Preserve a previously loaded valid week, but NEVER show an expired one.
+        const previousStillValid=currentWeek.start<=today && today<=currentWeek.end
+          && weeklyPharmacies.length>0;
+        if(!previousStillValid){currentWeek={start:'',end:''};weeklyPharmacies=[];}
+        weeklyLoadError=!previousStillValid;
+      }
       allKnown=[...weeklyPharmacies];
       selectedMapPharmacy=weeklyPharmacies[0]||null;
       renderAll();
     } catch(err){
-      currentWeek={start:'',end:''}; weeklyPharmacies=[];allKnown=[];selectedMapPharmacy=null;
-      renderAll();console.warn('Weekly schedule unavailable');
+      if(requestId!==weekRequestId)return;
+      const today=isoToday();
+      const previousStillValid=currentWeek.start<=today && today<=currentWeek.end
+        && weeklyPharmacies.length>0;
+      if(!previousStillValid){currentWeek={start:'',end:''};weeklyPharmacies=[];allKnown=[];selectedMapPharmacy=null;}
+      weeklyLoadError=!previousStillValid;
+      renderAll();console.warn('Weekly schedule temporarily unavailable');
     }
   }
   async function loadNight(){
