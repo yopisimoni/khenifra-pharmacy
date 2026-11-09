@@ -101,4 +101,31 @@ assert.ok(text.includes('phoneStatus(p)'), 'Missing pharmacy phone must have a v
 assert.ok(text.includes('.owner-map-notice{display:flex') && text.includes('border:2px solid #c83737;border-radius:14px;background:#fff0f0'), 'Owner correction banner must be red');
 assert.ok(!text.includes('.app > .banner{background:#fff0f0'), 'General schedule warning should retain its original color');
 assert.ok(!text.includes('function candidatePhoneStatus(p){'), 'Do not display disputed candidate phone in public cards');
+// Exercise the actual weekly loader: confirmed week -> transient failure -> expired week.
+const weeklyStart=text.indexOf('async function loadWeek(){');
+const weeklyEnd=text.indexOf('async function loadNight(){',weeklyStart);
+assert.ok(weeklyStart>0 && weeklyEnd>weeklyStart,'Weekly loader not found');
+let testDate='2026-11-09', sourceMode='ok', renderCount=0;
+const backendWeek={start:'2026-11-09',end:'2026-11-15',pharmacies:[{id:'week-amalou'},{id:'week-najah'}]};
+const weeklyEnv=vm.runInNewContext(`let weekRequestId=0,weeklyLoadError=false,currentWeek={start:'',end:''},weeklyPharmacies=[],allKnown=[],selectedMapPharmacy=null;
+${text.slice(weeklyStart,weeklyEnd)}
+({loadWeek,snapshot:()=>({currentWeek,weeklyPharmacies,weeklyLoadError})})`,{
+  fetch:async()=>{if(sourceMode==='error')throw Error('transient');
+    return {ok:true,json:async()=>({week:sourceMode==='ok'?backendWeek:null})};
+  },
+  isoToday:()=>testDate,
+  renderAll:()=>{renderCount++;},
+  console:{warn:()=>{}}
+});
+await weeklyEnv.loadWeek();
+assert.equal(weeklyEnv.snapshot().weeklyPharmacies.length,2,'Valid current weekly rota not rendered');
+sourceMode='error';
+await weeklyEnv.loadWeek();
+assert.equal(weeklyEnv.snapshot().weeklyPharmacies.length,2,'Transient API failure must not erase valid week');
+assert.equal(weeklyEnv.snapshot().weeklyLoadError,false,'Valid preserved schedule should remain usable');
+testDate='2026-11-16';
+await weeklyEnv.loadWeek();
+assert.equal(weeklyEnv.snapshot().weeklyPharmacies.length,0,'Expired weekly rota must never persist');
+assert.equal(weeklyEnv.snapshot().weeklyLoadError,true,'Expiry without fresh data must show error state');
+assert.ok(text.includes("const emptyCard= !cards && !isNightShiftHours()"),'Night card must not hide missing weekly schedule warning');
 console.log('PASS: HTML JS, three-language key parity, privacy page, Morocco timezone, no embedded map key');
