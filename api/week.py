@@ -69,7 +69,9 @@ def current_week_pharmacy(key, index, lookup):
         "nameAr": NAMES.get(key, key),
         "nameFr": name_fr,
         "phone": data.get("phone", ""),
+        "phoneNeedsReview": not bool(data.get("phone", "").strip()),
         "address": data.get("address", ""),
+        "addressNeedsReview": not bool(data.get("address", "").strip()),
         "verified": False,
         "source": "CRPOS weekly schedule; contact details from supplied local pharmacy directory",
     }
