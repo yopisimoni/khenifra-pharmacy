@@ -55,7 +55,7 @@ class PreMobileBoundaryTests(unittest.TestCase):
             data = get_current_week(datetime(2026, 11, 9, 14, tzinfo=TZ))
             amalou = data["pharmacies"][0]
             self.assertEqual(amalou["nameAr"], "صيدلية أمالو")
-            self.assertEqual(amalou["phone"], "")
+            self.assertEqual(amalou["phone"], "0535586232")
             self.assertTrue(amalou["phoneNeedsReview"])
             self.assertTrue(amalou["addressNeedsReview"])
             self.assertEqual(amalou["address"], "")

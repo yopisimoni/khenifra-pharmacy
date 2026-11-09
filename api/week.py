@@ -61,6 +61,10 @@ def current_week_pharmacy(key, index, lookup):
     approved = json.loads(os.environ.get("VERIFIED_PHARMACY_PLACES_JSON", "{}"))
     candidate = approved.get(WEEK_TO_NIGHT.get(key, ""), {})
     place_id = candidate.get("placeId", "") if isinstance(candidate, dict) else ""
+    # Medicalis lists 0535586232 for Pharmacie Amalou at 87 bd Massira, Khénifra.
+    # Other directories assign 0535587344 to both Amalou and Pharmacie Razi.
+    # Scope the provisional contact to the AMALOU weekly entry only.
+    phone = "0535586232" if key == "AMALOU" and not data.get("phone") else data.get("phone", "")
     return {
         "placeId": place_id,
         "locationVerified": bool(place_id),
@@ -68,8 +72,8 @@ def current_week_pharmacy(key, index, lookup):
         "name": key,
         "nameAr": NAMES.get(key, key),
         "nameFr": name_fr,
-        "phone": data.get("phone", ""),
-        "phoneNeedsReview": not bool(data.get("phone", "").strip()),
+        "phone": phone,
+        "phoneNeedsReview": key == "AMALOU" or not bool(phone.strip()),
         "address": data.get("address", ""),
         "addressNeedsReview": not bool(data.get("address", "").strip()),
         "verified": False,
