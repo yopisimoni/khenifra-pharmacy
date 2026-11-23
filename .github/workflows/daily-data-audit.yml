@@ -1,0 +1,16 @@
+name: Khénifra daily live data integrity
+on:
+  schedule:
+    - cron: '15 12 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-data-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Check published pharmacy contact completeness
+        run: python3 scripts/audit_public_contacts.py
