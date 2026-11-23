@@ -2,7 +2,7 @@
    No analytics requests occur without a valid ID and affirmative consent. */
 (() => {
   'use strict';
-  const GA4_ID = ''; // Set to your public GA4 Measurement ID, e.g. G-XXXXXXXXXX
+  const GA4_ID = 'G-5EF4M876PE'; // Set to your public GA4 Measurement ID, e.g. G-XXXXXXXXXX
   if (!/^G-[A-Z0-9]{6,15}$/.test(GA4_ID)) return;
   const consentKey = 'khenifra-analytics-consent-v1';
   const params = new URLSearchParams(location.search);
