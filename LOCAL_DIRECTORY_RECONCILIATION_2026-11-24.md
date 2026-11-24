@@ -23,3 +23,17 @@ On the supplied input: **42 rows, 40 distinct names, 0 missing phone/address, 0 
 
 ## Release
 Review tests and preview, verify actual runtime contact values against owner-approved inputs, and merge only after approval. `VERIFIED_PHARMACY_PLACES_JSON` must not be populated from unverified map results.
+
+## 2026-11-24 production endpoint observation
+- `/api/week/current` returned two records for 2026-11-23..2026-11-29.
+- `week-najd`: Arabic name present; French fallback `Pharmacie Najd`; phone and address empty. Its name is absent from the 40-row manager-confirmed night directory. Do **not** infer phone from public directories.
+- `week-ghrissi`: phone `0535586232`, address `شارع محمد الخامس حي الحسن الثاني`; both match the manager-confirmed historical CSV. Exact GPS not verified.
+- `/api/night/current`: `Nouvelle Pharmacie` / `الصيدلية الجديدة`, phone `0535586521`, address `زنقة وجدة 237 شارع محمد الخامس`, matches uploaded historical source.
+- The owner-supplied 42-row CSV and 40-row French reference align on **all 40 Arabic names, phones and addresses**; the French reference contains 40 distinct nonempty labels. This confirms the two uploaded sources agree, not that the full Vercel environment matches.
+- Historical shift start times: 32 records at 21:00 and 10 records at 21:30. Keep a public timing caveat; do not assert 21:00 applies to every duty.
+- Missing contact mapping keys still need independently supplied approved weekly records: `HABRI`, `RACHID`, `AFILAL`, `EL WAHDA`, `WALILI`, `ALIAE`; current `NAJD` is also absent from the manager-confirmed night directory despite having a mapping key.
+
+## Safe implementation
+- Optional `WEEKLY_CONTACTS_JSON`: keyed by weekly rota identifier, providing explicit `nameFr`, `phone` and `address` from a manager-approved separate weekly source. Do not populate it with guesses.
+- The old hard-coded provisional `AMALOU` phone was removed: records not in an approved contact source must remain visibly flagged as missing.
+- No Vercel environment values were accessed or changed; no GPS or `placeId` was approved.
