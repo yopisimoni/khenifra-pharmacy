@@ -40,14 +40,16 @@ class PreviewTests(unittest.TestCase):
             self.assertTrue(item["scheduleBasedOnRotation"])
             self.assertFalse(item["upcoming"])
 
-    def test_disputed_pharmacy_phone_is_not_shown(self):
+    def test_manager_confirmed_phone_is_preserved_and_gps_not_approved(self):
         data = sample_rotation()
         data[0]["phone"] = "0661649124"
-        with patch.dict(os.environ, {"NIGHT_ROTATION_JSON": json.dumps(data)}):
+        with patch.dict(os.environ, {"NIGHT_ROTATION_JSON": json.dumps(data),
+                                      "VERIFIED_PHARMACY_PLACES_JSON": "{}"}):
             item = get_duty(datetime(2026, 11, 3, 22, tzinfo=TZ))
-            self.assertEqual(item["phone"], "")
-            self.assertTrue(item["phoneNeedsReview"])
-            self.assertTrue(item["locationNeedsReview"])
+            self.assertEqual(item["phone"], "0661649124")
+            self.assertFalse(item["phoneNeedsReview"])
+            self.assertFalse(item["locationVerified"])
+            self.assertEqual(item["placeId"], "")
 
     def test_before_nine_shows_previous_night(self):
         with patch.dict(os.environ, {"NIGHT_ROTATION_JSON": json.dumps(sample_rotation())}):
