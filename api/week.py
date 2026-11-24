@@ -55,7 +55,18 @@ WEEK_TO_NIGHT = {
     "HEY EL FILAHI": "صيدلية الحي الفلاحي",
 }
 def current_week_pharmacy(key, index, lookup):
+    # Night rotation is a contact directory, not a complete weekly contact registry.
+    # An independently manager-approved weekly record may be provided by key.
     data = lookup.get(WEEK_TO_NIGHT.get(key, ""), {})
+    weekly_contacts = json.loads(os.environ.get("WEEKLY_CONTACTS_JSON", "{}"))
+    if not isinstance(weekly_contacts, dict):
+        raise ValueError("WEEKLY_CONTACTS_JSON must be an object")
+    extra = weekly_contacts.get(key, {})
+    if not isinstance(extra, dict):
+        raise ValueError("Invalid weekly contact record")
+    # Explicit owner-supplied contact fields take precedence; do not infer values.
+    data = {**data, **{field: extra[field] for field in ("nameFr", "phone", "address")
+                       if isinstance(extra.get(field), str) and extra[field].strip()}}
     # Original pharmacist duty source establishes the weekly appointment;
     # the night-order directory supplies contact details, not weekly hours.
     name_fr = data.get("nameFr") or "Pharmacie " + key.title()
