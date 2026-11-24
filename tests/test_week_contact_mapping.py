@@ -1,6 +1,8 @@
 """Validate that weekly pharmacy identities have explicit contact lookups."""
 import importlib.util
 import pathlib
+import os
+from unittest.mock import patch
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -23,6 +25,30 @@ class WeeklyContactMappingTests(unittest.TestCase):
         pharmacy = week.current_week_pharmacy("NAJD", 0, {})
         self.assertEqual(pharmacy["phone"], "")
         self.assertTrue(pharmacy["phoneNeedsReview"])
+
+
+    def test_separate_manager_approved_weekly_contact(self):
+        record = '{"NAJD":{"nameFr":"Pharmacie Ennajd","phone":"0535000000","address":"Hay Ennajd"}}'
+        with patch.dict(os.environ, {"WEEKLY_CONTACTS_JSON": record}):
+            item = week.current_week_pharmacy("NAJD", 0, {})
+        self.assertEqual(item["phone"], "0535000000")
+        self.assertEqual(item["address"], "Hay Ennajd")
+        self.assertEqual(item["nameFr"], "Pharmacie Ennajd")
+        self.assertFalse(item["phoneNeedsReview"])
+        self.assertFalse(item["addressNeedsReview"])
+
+    def test_missing_weekly_contact_not_fabricated(self):
+        with patch.dict(os.environ, {"WEEKLY_CONTACTS_JSON": "{}"}):
+            item = week.current_week_pharmacy("HABRI", 0, {})
+        self.assertEqual(item["phone"], "")
+        self.assertTrue(item["phoneNeedsReview"])
+
+    def test_weekly_contact_does_not_prove_location(self):
+        with patch.dict(os.environ, {"WEEKLY_CONTACTS_JSON": '{"NAJD":{"phone":"0535000000","address":"X"}}',
+                                      "VERIFIED_PHARMACY_PLACES_JSON": "{}"}):
+            item = week.current_week_pharmacy("NAJD", 0, {})
+        self.assertFalse(item["locationVerified"])
+        self.assertEqual(item["placeId"], "")
 
 if __name__ == "__main__":
     unittest.main()

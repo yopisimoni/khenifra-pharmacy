@@ -55,17 +55,26 @@ WEEK_TO_NIGHT = {
     "HEY EL FILAHI": "صيدلية الحي الفلاحي",
 }
 def current_week_pharmacy(key, index, lookup):
+    # Night rotation is a contact directory, not a complete weekly contact registry.
+    # An independently manager-approved weekly record may be provided by key.
     data = lookup.get(WEEK_TO_NIGHT.get(key, ""), {})
+    weekly_contacts = json.loads(os.environ.get("WEEKLY_CONTACTS_JSON", "{}"))
+    if not isinstance(weekly_contacts, dict):
+        raise ValueError("WEEKLY_CONTACTS_JSON must be an object")
+    extra = weekly_contacts.get(key, {})
+    if not isinstance(extra, dict):
+        raise ValueError("Invalid weekly contact record")
+    # Explicit owner-supplied contact fields take precedence; do not infer values.
+    data = {**data, **{field: extra[field] for field in ("nameFr", "phone", "address")
+                       if isinstance(extra.get(field), str) and extra[field].strip()}}
     # Original pharmacist duty source establishes the weekly appointment;
     # the night-order directory supplies contact details, not weekly hours.
     name_fr = data.get("nameFr") or "Pharmacie " + key.title()
     approved = json.loads(os.environ.get("VERIFIED_PHARMACY_PLACES_JSON", "{}"))
     candidate = approved.get(WEEK_TO_NIGHT.get(key, ""), {})
     place_id = candidate.get("placeId", "") if isinstance(candidate, dict) else ""
-    # Medicalis lists 0535586232 for Pharmacie Amalou at 87 bd Massira, Khénifra.
-    # Other directories assign 0535587344 to both Amalou and Pharmacie Razi.
-    # Scope the provisional contact to the AMALOU weekly entry only.
-    phone = "0535586232" if key == "AMALOU" and not data.get("phone") else data.get("phone", "")
+    # Contact details must come from supplied directory or an approved weekly record.
+    phone = data.get("phone", "")
     return {
         "placeId": place_id,
         "locationVerified": bool(place_id),
@@ -74,7 +83,7 @@ def current_week_pharmacy(key, index, lookup):
         "nameAr": NAMES.get(key, key),
         "nameFr": name_fr,
         "phone": phone,
-        "phoneNeedsReview": key == "AMALOU" or not bool(phone.strip()),
+        "phoneNeedsReview": not bool(phone.strip()),
         "address": data.get("address", ""),
         "addressNeedsReview": not bool(data.get("address", "").strip()),
         "verified": False,
